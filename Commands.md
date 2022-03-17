@@ -37,6 +37,48 @@ Show the same amount of info that `ifconfig` shows
 ip a
 ```
 
+### arp
+
+> NOTE: To see `MAC Adress` -> `IP` mapping
+
+Show `arp cache`
+```
+arp -a
+? (192.168.149.132) at 72:d5:50:f9:de:67 on en0 ifscope [ethernet]
+? (192.168.149.137) at d0:a6:37:ec:7f:71 on en0 ifscope permanent [ethernet]
+? (192.168.149.255) at ff:ff:ff:ff:ff:ff on en0 ifscope [ethernet]
+? (224.0.0.251) at 1:0:5e:0:0:fb on en0 ifscope permanent [ethernet]
+? (239.255.255.250) at 1:0:5e:7f:ff:fa on en0 ifscope permanent [ethernet]
+broadcasthost (255.255.255.255) at ff:ff:ff:ff:ff:ff on en0 ifscope [ethernet]
+```
+
+### route
+
+> NOTE: To view and manipulate `IP routing table`
+
+> NOTE: We can work with `IP routing table` on your OS, as `router` is built in
+
+Show route table
+```
+route -n
+```
+
+### netstat
+
+Show network statistic
+```
+netstat
+```
+
+Show overall statistic
+```
+netstat -s
+```
+Show route table
+```
+netstat -rn
+```
+
 
 ## DNS
 
