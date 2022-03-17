@@ -5,7 +5,9 @@
 
 ### ifconfig
 
-Show additional info for `en0` interface (Unix/iOS):
+> NOTE: Unix/iOS
+
+Show additional info for `en0` interface:
 ```
 ifconfig -v en0
 
@@ -25,6 +27,16 @@ ifconfig -v en0
       downlink rate: 31.97 Mbps [eff] / 304.20 Mbps [max]
       qosmarking enabled: yes mode: none
 ```
+
+### ip
+
+> NOTE: The new substitution of deprecated `ifconfig` tool on modern Unix
+
+Show the same amount of info that `ifconfig` shows
+```
+ip a
+```
+
 
 
 ## Scan Remote Server to find: open ports, OS, etc
