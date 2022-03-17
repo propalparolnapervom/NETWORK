@@ -85,6 +85,58 @@ nslookup
 ```
 
 
+### dig
+
+Find IP mapped to DNS record (by geting `A` records for specified `Domain Name`)
+```
+dig ukr.net
+
+    ; <<>> DiG 9.10.6 <<>> ukr.net
+    ;; global options: +cmd
+    ;; Got answer:
+    ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 28419
+    ;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+    ;; OPT PSEUDOSECTION:
+    ; EDNS: version: 0, flags:; udp: 512
+    ;; QUESTION SECTION:
+    ;ukr.net.			IN	A
+
+    ;; ANSWER SECTION:
+    ukr.net.		121	IN	A	104.18.9.128
+    ukr.net.		121	IN	A	104.18.8.128
+
+    ;; Query time: 147 msec
+    ;; SERVER: 192.168.149.132#53(192.168.149.132)
+    ;; WHEN: Thu Mar 17 16:55:26 EET 2022
+    ;; MSG SIZE  rcvd: 68
+```
+
+Get `MX` records for specified `Domain Name`
+```
+dig -t mx ukr.net
+
+    ; <<>> DiG 9.10.6 <<>> -t mx ukr.net
+    ;; global options: +cmd
+    ;; Got answer:
+    ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 10984
+    ;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+    ;; OPT PSEUDOSECTION:
+    ; EDNS: version: 0, flags:; udp: 512
+    ;; QUESTION SECTION:
+    ;ukr.net.			IN	MX
+
+    ;; ANSWER SECTION:
+    ukr.net.		1116	IN	MX	10 mxs.ukr.net.
+
+    ;; Query time: 159 msec
+    ;; SERVER: 192.168.149.132#53(192.168.149.132)
+    ;; WHEN: Thu Mar 17 16:59:33 EET 2022
+    ;; MSG SIZE  rcvd: 56
+```
+
+
 ## Scan Remote Server to find: open ports, OS, etc
 
 ### nmap (network map)
