@@ -2,8 +2,10 @@
 
 # How Application sends data over network?
 #
-# Application provides data which has to be send
-# to the OS kernel, via Socket API
+# Application provides following info to the OS kernel, via Socket API:
+#    - data which has to be send;
+#    - IPv4 or IPv6 to be used;
+#    - UPD or TCP to be used
 # Once data provided, OS kernel then packages it in necessary form
 # to be send over the network
 
@@ -18,6 +20,8 @@ XBS_DATA = b'So was it sent successfully?'
 
 # Create a socket,
 # which will be a "window" for your Application to the OS kernel
+#    - AF_INET - use IPv4
+#    - SOCK_DGRAM - use UDP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Send data to the socket, 
