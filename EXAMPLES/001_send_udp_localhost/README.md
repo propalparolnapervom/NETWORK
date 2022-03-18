@@ -14,3 +14,7 @@ nc -luv 9090
 Start python script to:
 - send `Hello, world` to local server on port `9090` via `UDP` connection
 
+## In terminal 1
+
+Message from the python script should appear
+
