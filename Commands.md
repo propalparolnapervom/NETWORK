@@ -80,6 +80,29 @@ netstat -rn
 ```
 
 
+## TCP/UDP
+
+### nc
+
+> NOTE: networking utility for reading from and writing to network connections using TCP or UDP
+
+View keys
+```
+nc -help
+```
+
+On a local machine, start listening server
+```
+# MacOS
+
+# Listen for UDP in verbose mode
+nc -luv 9090
+```
+
+
+
+
+
 ## DNS
 
 ### nslookup
