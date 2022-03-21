@@ -2,8 +2,8 @@
 
 ### How Application sends data over network?
 OS kernel knows how to:
-     - create a Package to be send over the network;
-     - send it over the network.
+   - create a Package to be send over the network;
+   - send it over the network.
      
 Package constructions is done inside of `OS kernel`.
 
