@@ -201,7 +201,6 @@ dig -t mx ukr.net
     ;; MSG SIZE  rcvd: 56
 ```
 
-
 ## Scan Remote Server to find: open ports, OS, etc
 
 ### nmap (network map)
@@ -218,9 +217,29 @@ Same as `nmap`, but with UI.
 
 
 
+## Connections
+
+### nc
+
+> NOTE: `nc` (aka `netcat`) is a computer networking utility for reading from and writing to network connections using `TCP` or `UDP`.
+
+Available options
+```
+# MacOS
+nc -help
+```
+
+Act like a server (listen port `9090` for inbound `UDP` connections)
+```
+# MacOS
+nc -luv 9090
+```
 
 
-
-
+Act like a client (send data to port `9090` via `UDP` connection)
+```
+# MacOS
+nc -u 10.0.2.7 9090
+```
 
 
