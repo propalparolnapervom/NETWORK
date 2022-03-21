@@ -47,6 +47,66 @@ At `App` level:
    - once the package in the `Buffer`, the `App` can read it;
    - it can be that `App` is always blocked when there is no data; in this case `OS` wakes `App` up, once the packages are in the buffer;
 
+
+## Layer 2: Data Link Layer
+
+Sender `A` needs to send a data to Receiver `B`.
+
+`A` and `B` are located on different local networks, connected by the Internet.
+
+What the data flow?
+
+### MAC Header 
+
+> **NOTE**: `MAC Header` is a general name, it's also called `Ethernet Header` in case if Ethernet is in use.
+
+`A` constructs an `IP packet` which consist of:
+   1) payload (in this case, data itself);
+   2) IP header: 
+     - source IP address (`A`);
+     - destination IP address (`B`).
+
+The `IP packet` can not be send from `A` to `B` directly, as they are not at the same local network. Thus, not connected to the same physical wire, for example.
+
+Thus, `Routers` should be involved to provide this communication, as they physically present simultaneously in 2 or more local networks and know how to route traffic between them. 
+
+Thus, to send `IP packet` outside of network, it should be send by `A` to the router inside of its local network. Let it be `R1`.
+
+In order to do that, additional header of `Layer 2` is added to the `IP packet` by `A`:
+   3) MAC header:
+     - source MAC address (`A`);
+     - receiver MAC address (`R1` router);
+     - type of payload (`IP` or `ARP`).
+
+Now it is called a `Frame` (as this is a name for a data on `Layer 2`).
+
+This `Frame` is sent by `A` as a broadcast message to all receivers in the local network. Network Interface Card of every receiver in the local network looks at the destination `MAC Adress` with a question "Is it for me?":
+   - if no, the `Frame` is dropped;
+   - if yes, the `Frame` is taken into the work (provided to the upper `Layer 3`, ..., up to `Application Layer 7`).
+
+So `R1` receives such broadcast message (because its `MAC Adress` specified as a destionation `MAC Adress`). Then:
+   - removes old `MAC Header`, added by `A`;
+   - looks at the `IP packet`;
+   - founds out that this is `IP A` -> `IP B` communication.
+
+As router `R1` knows how to route traffic to the necessary `B`, it sensds it to the `R2` router.
+
+In order to do that, it adds to the original `IP packet` additional header of `Layer 2`.
+
+Its done at the same exact way as it was done by `A`, but with new source/destination MAC adresses:
+   3) MAC header:
+     - source MAC address (`R1` router);
+     - receiver MAC address (`R2` router);
+     - type of payload (`IP` or `ARP`).
+
+
+Within a local network, communication happens only via `MAC Address`
+
+### ARP
+
+
+
+
 ## IP addressing
 
 
