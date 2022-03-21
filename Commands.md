@@ -239,6 +239,7 @@ nc -luv 9090
 Act like a client (send data to port `9090` via `UDP` connection)
 ```
 # MacOS
+# nc -u <DEST_IP> <DEST_PORT>
 nc -u 10.0.2.7 9090
 ```
 
