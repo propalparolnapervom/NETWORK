@@ -1,14 +1,27 @@
 ## Overall
 
 ### How Application sends data over network?
-OS kernel knows how to create a package to be send over the network. So Application doesn't do that. The only thing it should be aware of, is how to provide necessary data to OS kernel. 
+OS kernel knows how to:
+     - create a Package to be send over the network;
+     - send it over the network.
+     
+Package constructions is done inside of `OS kernel`.
 
-Application provides following info to the OS kernel, via Socket API:
-    - data which has to be send;
-    - IPv4 or IPv6 to be used;
-    - UPD or TCP to be used
+So `Application` doesn't need to know that. Instead, it should know how to provide necessary data to OS kernel.
+
+`Application` communicates with `OS kernel` via `Socket API` (this is some kind of window for a communication between them).
+
+`Application` provides following info to the `OS kernel`, via `Socket API`:
+    - data itself, which has to be send;
+    - `Transport Layer 4` info:
+       - which protocol to use (`UPD` or `TCP`);
+       - what is Destination `Port` number;
+    - `Network Layer 3` info:
+       - which protocol to use (`IPv4` or `IPv6`);
+       - what is Destination `IP` adress;
+
     
-Once data provided, OS kernel then packages it in necessary form to be send over the network
+Once data provided, `OS kerne`l then packages it in necessary form and sends it over the network.
 
 
 ## IP addressing
