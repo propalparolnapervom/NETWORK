@@ -1,6 +1,6 @@
-## Overall
+## How App communicate over network?
 
-### How Application sends data over network?
+### How App sends data
 OS kernel knows how to:
    - create a Package to be send over the network;
    - send it over the network.
@@ -21,8 +21,31 @@ So `Application` doesn't need to know that. Instead, it should know how to provi
      - what is Destination `IP` adress;
 
     
-Once data provided, `OS kerne`l then packages it in necessary form and sends it over the network.
+Once data provided, `OS kernel` packages it into necessary form and sends it over the network.
 
+
+### How App receives data
+
+> NOTE: When you open the `Socket` at `OS` level, you must bind it to:
+>          - `IP` adress - as server can have multiple `network interface cards`, so multiple `IP` adresses. and `App` can listen all of them or just specified ones; you define it via such bind;
+>          - `Port` number - thus `OS` knows to which `App` give received package;
+
+
+At `OS` level:
+   - ... previous OSI layers are ommited here to simplify explanation ...
+   - `Network Layer 3`:
+     - looks if destination IP is the IP of current machine;
+     - drops the package, if not;
+   - `Transport Layer 4`:
+     - looks which transport protocol was used (`UDP` or `TCP` or ...);
+     - moves package to corresponding OS module (`UDP` OS module to work with `UDP`, for instance);
+     - `UDP` OS module looks which destination Port number was specified in the package;
+     - Inside the `OS`, the `App` and `Port` number are mapped. So when package arrives, `Transport Layer` knows, which `App` should receive the data;
+     - So once the package is received, it moved to a `Buffer`, mapped to the `Port`
+
+At `App` level:
+   - once the package in the `Buffer`, the `App` can read it;
+   - it can be that `App` is always blocked when there is no data; in this case `OS` wakes `App` up, once the packages are in the buffer;
 
 ## IP addressing
 
