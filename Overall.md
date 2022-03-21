@@ -12,13 +12,13 @@ So `Application` doesn't need to know that. Instead, it should know how to provi
 `Application` communicates with `OS kernel` via `Socket API` (this is some kind of window for a communication between them).
 
 `Application` provides following info to the `OS kernel`, via `Socket API`:
-    - data itself, which has to be send;
-    - `Transport Layer 4` info:
-       - which protocol to use (`UPD` or `TCP`);
-       - what is Destination `Port` number;
-    - `Network Layer 3` info:
-       - which protocol to use (`IPv4` or `IPv6`);
-       - what is Destination `IP` adress;
+   - data itself, which has to be send;
+   - `Transport Layer 4` info:
+     - which protocol to use (`UPD` or `TCP`);
+     - what is Destination `Port` number;
+   - `Network Layer 3` info:
+     - which protocol to use (`IPv4` or `IPv6`);
+     - what is Destination `IP` adress;
 
     
 Once data provided, `OS kerne`l then packages it in necessary form and sends it over the network.
