@@ -73,6 +73,7 @@ Thus, `Routers` should be involved to provide this communication, as they physic
 Thus, to send `IP packet` outside of network, it should be send by `A` to the router inside of its local network. Let it be `R1`.
 
 In order to do that, additional header of `Layer 2` is added to the `IP packet` by `A`:
+
    3) MAC header:
    - source MAC address (`A`);
    - receiver MAC address (`R1` router);
@@ -94,13 +95,14 @@ As router `R1` knows how to route traffic to the necessary `B`, it sensds it to 
 In order to do that, it adds to the original `IP packet` additional header of `Layer 2`.
 
 Its done at the same exact way as it was done by `A`, but with new source/destination MAC adresses:
+
    3) MAC header:
    - source MAC address (`R1` router);
    - receiver MAC address (`R2` router);
    - type of payload (`IP` or `ARP`).
 
 
-Within a local network, communication happens only via `MAC Address`
+Within a local network, communication happens only via `MAC Address`.
 
 ### ARP
 
