@@ -2,8 +2,11 @@
 
 ## How App sends data
 OS kernel knows how to:
-   - create a Package to be send over the network;
-   - send it over the network.
+- create a Package to be send over the network;
+- send it over the network by making routing decision:
+  - chosing, whether it's local network or router has to be used;
+  - which router to use in the local network (if there are few of them);
+  - which Network Interface Card to use (if the computer has multiple of them);
      
 Package constructions is done inside of `OS kernel`.
 
@@ -21,7 +24,17 @@ So `Application` doesn't need to know that. Instead, it should know how to provi
   - what is Destination `IP` adress;
 
     
-Once data provided, `OS kernel` packages it into necessary form and sends it over the network.
+Once data provided, `OS kernel` packages it into necessary form:
+- on `Layer 4: Transport` it creates `Segment`: adds `UDP` (or `TCP`) header to payload from previuos step (so, data itself from App);
+- on `Layer 3: Network` it creates `IP packet`: adds `IP` header to payload from previuos step (so, `Segment`);
+- on `Layer 2: Data Link` it creates `Frame`: adds `MAC` header to payload from previuos step (so, `IP packet`);
+
+Then `OS kernel` makes routing decision:
+- choses which router to use (if many);
+- choses which network interface card to use (if many).
+
+Then `OS kernel` sends the package.
+
 
 
 ## How App receives data
@@ -51,7 +64,7 @@ At `App` level:
 
 
 
-# Layer 2: Data Link Layer
+# Layer 2: Data Link
 
 Sender `A` needs to send a data to Receiver `B`.
 
@@ -184,7 +197,7 @@ Also, it is stateless: once request is sent, sender doesn't remember that it was
 
 
 
-# Layer 3: Network Layer
+# Layer 3: Network
 
 Basic functions:
 - at network:
