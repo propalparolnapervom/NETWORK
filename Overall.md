@@ -62,9 +62,9 @@ What the data flow?
 
 `A` constructs an `IP packet` which consist of:
    1) payload (in this case, data itself);
-   2) IP header: 
-     - source IP address (`A`);
-     - destination IP address (`B`).
+   2) IP header:
+   - source IP address (`A`);
+   - destination IP address (`B`).
 
 The `IP packet` can not be send from `A` to `B` directly, as they are not at the same local network. Thus, not connected to the same physical wire, for example.
 
@@ -74,9 +74,9 @@ Thus, to send `IP packet` outside of network, it should be send by `A` to the ro
 
 In order to do that, additional header of `Layer 2` is added to the `IP packet` by `A`:
    3) MAC header:
-     - source MAC address (`A`);
-     - receiver MAC address (`R1` router);
-     - type of payload (`IP` or `ARP`).
+   - source MAC address (`A`);
+   - receiver MAC address (`R1` router);
+   - type of payload (`IP` or `ARP`).
 
 Now it is called a `Frame` (as this is a name for a data on `Layer 2`).
 
@@ -95,9 +95,9 @@ In order to do that, it adds to the original `IP packet` additional header of `L
 
 Its done at the same exact way as it was done by `A`, but with new source/destination MAC adresses:
    3) MAC header:
-     - source MAC address (`R1` router);
-     - receiver MAC address (`R2` router);
-     - type of payload (`IP` or `ARP`).
+   - source MAC address (`R1` router);
+   - receiver MAC address (`R2` router);
+   - type of payload (`IP` or `ARP`).
 
 
 Within a local network, communication happens only via `MAC Address`
