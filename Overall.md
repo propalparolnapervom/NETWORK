@@ -299,14 +299,41 @@ Dynamic Routing Protocols:
 | Border Gateway Protocol | BGP | Path vector | Exterior |
 
 
+## ICMP protocol
+
+> **NOTE**: `ICMP` stands for Internet Control Message Protocol
+
+
+ICMP itself uses IP.
+
+ICMP is used for:
+- Control Messages - when you want to exchange info, but only on `Layer 3` level:
+  - echo request/reply
+  - redirect;
+  - timestamp request/reply;
+  - router advertisement/solicitation
+- Error Messages - if I drop a message, I need to send an error message back to the sender:
+  - destination is unreacheble
+  - time exceeded:
+    - TTL became 0 and router had to drop the packet;
+    - IP fragmentation was involved, but original packet couldn't be assembled
 
 
 
+### ICMP: echo request/reply
 
+This type of ICMP messages is used by `ping` tool:
+- `sender` sends ICMP message:
+  - with `8` in the `Type` field;
+  - with some data in the `Data` field;
+  - this is called a **request**.
+- once `receiver` gets this message, on its `Layer 3: Network` it:
+  - understands that this is a request message;
+  - sends back ICMP message, which is called **reply**;
+  - with `0` in the `Type` field;
+  - with some data in the `Data` field;
 
-
-
-
+If the data in reply is the same as in request, the connection is OK. That's why it's called **echo**.
 
 
 
