@@ -60,6 +60,8 @@ What the data flow?
 
 > **NOTE**: `MAC Header` is a general name, it's also called `Ethernet Header` in case if Ethernet is in use.
 
+> **NOTE**: Within a local network, communication happens only via `MAC Address`.
+
 `A` constructs an `IP packet` which consist of:
    1) payload (in this case, data itself);
    2) IP header:
@@ -76,8 +78,8 @@ In order to do that, additional header of `Layer 2` is added to the `IP packet` 
 
    3) MAC header:
    - source MAC address (`A`);
-   - receiver MAC address (`R1` router);
-   - type of payload (`IP` or `ARP`).
+   - destination MAC address (`R1` router);
+   - type of payload (`IP packet` or `ARP packet`).
 
 Now it is called a `Frame` (as this is a name for a data on `Layer 2`).
 
@@ -98,11 +100,33 @@ Its done at the same exact way as it was done by `A`, but with new source/destin
 
    3) MAC header:
    - source MAC address (`R1` router);
-   - receiver MAC address (`R2` router);
-   - type of payload (`IP` or `ARP`).
+   - destination MAC address (`R1` router);
+   - type of payload (`IP packet` or `ARP packet`).
+
+Such removing old `MAC Header`, looking at `IP` adresses, adding new `MAC Header`  will be done multiple times by multiple routers within an Internet.
+
+Eventually, `Rk` router will be reached, which is located within the same local network as `B` (thus, directly connected to `B`).
+
+`Rk` removes `MAC Header` too, looks that this is `IP A` -> `IP B` communication. And as it knows where `B` is located, the following is done at the same exact way as it was done multiple times before: a new `MAC Header` is added to the original `IP packet`, but with new source/destination MAC adresses:
+
+   3) MAC header:
+   - source MAC address (`Rk` router);
+   - destination MAC address (`R1` router);
+   - type of payload (`IP packet` or `ARP packet`).
+
+This `Frame` arrives to the destination `B`. 
+
+Then `B` removes `MAC Adress` header, looks that destination `IP B` is his `IP`, so processes the packet (provides to the upper `Layer 3`, ..., up to `Application Layer 7`).
+
+That's how packet from `A` arrives to `B`.
+
+> NOTE: The analogy.
+> `IP packet` is you, `Frame` (so `IP packet` + `MAC Header`) is the bus.
+> So packet traveling from `A` to `B` is like you, traveling on the multiple buses from `A` to `B`. 
+> You change the bus to the new one every time you arrive to a new router.
+> Every bus has its own source and destination point.
 
 
-Within a local network, communication happens only via `MAC Address`.
 
 ### ARP
 
