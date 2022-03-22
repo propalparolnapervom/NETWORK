@@ -355,6 +355,8 @@ The messages have `3` in the `Type` field of `ICMP Header`.
 
 The messages have following in the `Code` field of `ICMP Header` (subtype of the main type).
 
+| Code | Reason |
+| ---- | ------ |
 | 0 | Destination **network** unrecheable |
 | 1 | Destination **host** unrecheable |
 | 2 | Destination **protocol** unrecheable |
