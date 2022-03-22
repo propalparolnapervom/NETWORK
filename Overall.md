@@ -48,6 +48,9 @@ At `App` level:
    - it can be that `App` is always blocked when there is no data; in this case `OS` wakes `App` up, once the packages are in the buffer;
 
 
+
+
+
 ## Layer 2: Data Link Layer
 
 Sender `A` needs to send a data to Receiver `B`.
@@ -59,8 +62,6 @@ What the data flow?
 ### MAC Header 
 
 > **NOTE**: `MAC Header` is a general name, it's also called `Ethernet Header` in case if Ethernet is in use.
-
-> **NOTE**: Within a local network, communication happens only via `MAC Address`.
 
 `A` constructs an `IP packet` which consist of:
    1) payload (in this case, data itself);
@@ -120,16 +121,55 @@ Then `B` removes `MAC Adress` header, looks that destination `IP B` is his `IP`,
 
 That's how packet from `A` arrives to `B`.
 
-> NOTE: The analogy.
+> **ANALOGY**
+>
 > `IP packet` is you, `Frame` (so `IP packet` + `MAC Header`) is the bus.
 > So packet traveling from `A` to `B` is like you, traveling on the multiple buses from `A` to `B`. 
 > You change the bus to the new one every time you arrive to a new router.
 > Every bus has its own source and destination point.
 
 
-
 ### ARP
 
+> **NOTE**: `ARP` is for Adress Resolution Protocol.
+
+> **NOTE**: This is a `Layer 2` protocol, as it works with `MAC Adresses`.
+
+Within a local network (so when 2 computers are on the same cable, for example), communication happens only via `MAC Address`. Even if `IP` is known.
+
+That's because `Network Interface Card` doesn't look at `IP`, it looks at `MAC Adress` within a `MAC Header` of a `Frame`.
+
+> `ARP` protocol is responsible for getting `MAC Adress` for given `IP Adress` of receiver.
+
+
+> **ANALOGY**
+>
+> In the room few people. You know that on of them is Bob, but you don't know who exactly.
+> So you loudly (thus, all people in the room can here you) ask: "Who is Bob?"
+> Once Bob heard you, he raises his hand.
+> All other people heard you too, but they didn't respond, as no one is Bob among them.
+> 
+> Bob is `IP`, room is local network. Calling is `ARP request`, Bob raising the hand is `ARP responce`.
+
+
+Sender sends `ARP request` packet (as a **broadcast**, as receiver is unknown by its `MAC adress` yet) with (among other info):
+- sender info (fully known):
+   - MAC adress (known);
+   - IP adress (known);
+- target info (partially known):
+   - MAC adress field is empty (not known, trying to get this knowledge);
+   - IP adress (known).
+
+Receiver (which is on the same local network) sends `ARP responce` packet (as a **unicast**, as this time sender knows target by its `MAC adress` already) with (among other info):
+- sender info - now its info for target machine (fully known):
+   - MAC adress (known);
+   - IP adress (known);
+- target info - now its info of the original sender (fully known):
+   - MAC adress (known);
+   - IP adress (known);
+
+> **NOTE**: Once this initial request/responce communication is finished, destination `MAC Adress` is known to sender.
+> This `IP`->`MAC` mapping is saved then to the `ARP cache` for a while, to do not do such communication each time a packet should be send.
 
 
 
