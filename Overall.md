@@ -314,26 +314,56 @@ ICMP is used for:
   - router advertisement/solicitation
 - Error Messages - if I drop a message, I need to send an error message back to the sender:
   - destination is unreacheble
-  - time exceeded:
-    - TTL became 0 and router had to drop the packet;
-    - IP fragmentation was involved, but original packet couldn't be assembled
+  - time exceeded
 
 
 
-### ICMP: echo request/reply
+### ICMP: Control Message "echo request/reply"
 
 This type of ICMP messages is used by `ping` tool:
 - `sender` sends ICMP message:
-  - with `8` in the `Type` field;
-  - with some data in the `Data` field;
+  - with `8` in the `Type` field of `ICMP Header`;
+  - with some data in the `Data` field of `ICMP Header`;
   - this is called a **request**.
 - once `receiver` gets this message, on its `Layer 3: Network` it:
   - understands that this is a request message;
   - sends back ICMP message, which is called **reply**;
-  - with `0` in the `Type` field;
-  - with some data in the `Data` field;
+  - with `0` in the `Type` field of `ICMP Header`;
+  - with some data in the `Data` field of `ICMP Header`;
 
-If the data in reply is the same as in request, the connection is OK. That's why it's called **echo**.
+If the data in reply is the same as in request:
+- the receiver is alive;
+- the connection is OK. 
+
+That's why it's called **echo**.
+
+
+### ICMP: Error Message "time exceeded"
+
+The messages have `11` in the `Type` field of `ICMP Header`.
+
+
+Possible reasons:
+- TTL became 0 and router had to drop the packet;
+- IP fragmentation was involved, but original packet couldn't be assembled (some new packet were lost eventually);
+
+
+
+### ICMP: Error Message "destination unrecheable"
+
+The messages have `3` in the `Type` field of `ICMP Header`.
+
+The messages have following in the `Code` field of `ICMP Header` (subtype of the main type).
+
+| 0 | Destination **network** unrecheable |
+| 1 | Destination **host** unrecheable |
+| 2 | Destination **protocol** unrecheable |
+| 3 | Destination **port** unrecheable |
+| 4 | Fragmentation required, but DF flag is set |
+
+
+
+
 
 
 
