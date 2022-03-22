@@ -171,6 +171,14 @@ Receiver (which is on the same local network) sends `ARP responce` packet (as a 
 > **NOTE**: Once this initial request/responce communication is finished, destination `MAC Adress` is known to sender.
 > This `IP`->`MAC` mapping is saved then to the `ARP cache` for a while, to do not do such communication each time a packet should be send.
 
+`ARP` protocol is low-level (`Layer 2`) protocol, thus, in order to be very efficient in terms of perfomance, it has to be very simple:
+- no encryption;
+- no error detection;
+- etc
+
+Also, it is stateless: once request is sent, sender doesn't remember that it was sent. So once responce is get, it will update `ARP cache`.
+
+
 
 
 ## IP addressing
