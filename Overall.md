@@ -1,4 +1,4 @@
-# How App communicate over network?
+# How App communicates over the network?
 
 ## How App sends data
 OS kernel knows how to:
@@ -61,7 +61,7 @@ At `App` level:
 - it can be that `App` is always blocked when there is no data; in this case `OS` wakes `App` up, once the packages are in the buffer;
 
 
-
+> **NOTE**: See corresponding block below to get more info on processes that are going on on each separate OSI layers.
 
 
 # Layer 2: Data Link
@@ -209,9 +209,23 @@ Basic functions:
 > NOTE: It's not responsible for reliable transmition (if later packet comes before earlier packets, for example) (`TCP` from `Layer 4` is in charge of that).
 > This is "best effort delivery": it tries its best to make a packet delivery, but if something is happening during delivery - nothing will be done to fix it.
 
+## IP fragmentation
 
+When `OS kernel` constructs the `Frame`, which is `MAC Header` + payload (`IP packet`), it has a limit for a payload length:
+- no less then `46 bytes` - this size is big enough to let sender time to detect a collision at the local network (if any); so if receiver gets payload with size less then this one, it's considered as corrapted one;
+- no more then `1500 bytes` - physical limitation of the Ethernet, for example.
 
+Upper limit is also called `MTU` - Maximum Transmittion Unit. It can be set: 
+- on the machine of sender, so during initial packet creation no more then `1500 bytes` can be added to payload;
+- on the router during packet transmittion over the network (at this point MTU can be even smaller then the one, set up on the initial machine of sender).
 
+Each time package is bigger, then `MTU` (on sender's machine or router), the packet has to be divided on smaller packets, which might be routed to the receiver via different routes.
+
+Eventually it will be assembled back to the packet of the original size on the receiver side: at the `OS kernel`, at `IP layer`.
+
+If some packets are losted, the packet is considered as corrupted one, and eventually dropped.
+
+`IP fragmentation` field is used at the `IP Header` of the packet to track information about such packet divisions.
 
 
 
