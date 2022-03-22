@@ -199,6 +199,8 @@ Also, it is stateless: once request is sent, sender doesn't remember that it was
 
 # Layer 3: Network
 
+## IP protocol
+
 Basic functions:
 - at network:
   - routing
@@ -208,6 +210,16 @@ Basic functions:
 
 > NOTE: It's not responsible for reliable transmition (if later packet comes before earlier packets, for example) (`TCP` from `Layer 4` is in charge of that).
 > This is "best effort delivery": it tries its best to make a packet delivery, but if something is happening during delivery - nothing will be done to fix it.
+
+
+## Assigning of IP Addresses
+
+The following 4 components of fully configured client should be assigned `statically` (manually) or dynamicly (by DHCP server):
+- IP adress
+- subnet mask
+- default gateway (usually, IP of your router)
+- server adresses for DNS or Windows Internet Name Service (WINS) (Converts NetBIOS computer name into an IP address)
+
 
 ## IP fragmentation
 
@@ -225,27 +237,11 @@ Eventually it will be assembled back to the packet of the original size on the r
 
 If some packets are losted, the packet is considered as corrupted one, and eventually dropped.
 
-`IP fragmentation` field is used at the `IP Header` of the packet to track information about such packet divisions.
+`IP fragmentation` field is used at the `IP Header` of the packet to track information about such packet divisions: which smaller packet is 1st, 2nd, etc.
 
 
 
-
-
-# IP addressing
-
-
-## Assigning IP Addresses
-
-The following 4 components of fully configured client should be assigned `statically` (manually) or dynamicly (by DHCP server):
-- IP adress
-- subnet mask
-- default gateway (usually, IP of your router)
-- server adresses for DNS or Windows Internet Name Service (WINS) (Converts NetBIOS computer name into an IP address)
-
-
-
-
-# Routing
+## Routing
 
 The fundamentals:
 - Traffic is routed to flow between subnets
@@ -254,7 +250,7 @@ The fundamentals:
 switches can also separate broadcast domains
 
 
-## Routing Tables
+### Routing Tables
 
 Routing Decisions:
 - Layer 3 to Layer 2 Mapping
@@ -263,17 +259,53 @@ Routing Decisions:
 
 Sources of Routing Information
 - Directly Connected Routes (Learned by physical connection between routers)
-- Static Routes (1) Manually configured by an administrator 2) Default static route (0.0.0.0/0) is a special case: “If I don’t know where, then send out default static route.”)
+- Static Routes:
+  - Manually configured by an administrator
+  - Default static route (0.0.0.0/0) is a special case: “If I don’t know where, then send out default static route.”)
 - Dynamic Routing Protocols (Learned by exchanging information between routers via corresponding protocols)
 
+Routing tables are configured:
+- for the `Router`:
+  - routing protocols;
+  - attacks on the routing protocols (`BGP`, for example);
+- for the `Host`:
+  - DHCP
+  - default routers
+  - manual configuration
+  - ICMP redirect messages
 
-## Routing Protocols
+
+
+### Routing Protocols
+
 
 Internal and Exterior Routing Protocols
-▪ Interior Gateway Protocols (IGP)
-● Operate within an autonomous system
-▪ Exterior Gateway Protocols (EGP)
-● Operated between autonomous systems
+- Interior Gateway Protocols (IGP) - Operate **within** an autonomous system
+- Exterior Gateway Protocols (EGP) - Operated **between** autonomous systems
+
+Dynamic Routing Protocols:
+- More than one route can exist for a network
+- Different protocols consider different criteria when deciding which route to give preference
+- Based on number of hops (hop count in `RIP`), link bandwidths (`OSPF`), or other criteria
+
+
+
+| Routing Protocol | Abbreviation | Type | Interior/Exterior |
+| ---------------- | ------------ | ----- | ----------------- |
+| Routing Information Protocol | RIP | Distance vector | Interior |
+| Open Shortest Path First | OSPF | Link state | Interior |
+| Enhanced Interior Gateway Routing Protocol | EIGRP | Advanced distance vector | Interior |
+| Intermidiate System-to-Intermidiate System | IS-IS | Link state | Interior |
+| Border Gateway Protocol | BGP | Path vector | Exterior |
+
+
+
+
+
+
+
+
+
 
 
 
