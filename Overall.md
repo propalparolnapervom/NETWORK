@@ -478,8 +478,152 @@ UDP Applications:
 
 ## TCP Protocol
 
+### TCP: purpose
+
+Virtual connection between `A` and `B`:
+  - once `TCP` connection is established, `A` and `B` can consider there's a "pipe" between them;
+  - actually, there's 2 pipes: `A`->`B` and `B`->`A`;
+  - once packet on the one end of the pipe, it will be on the other one;
+  - the "pipe" is not real (like physical connection during old calls by phone via multiple switches), it's virtual: there's a software swithes instead of physical ones;
 
 
+With help of such pipe, unlike `UDP`, `TCP` provides:
+- ordering of packets:
+  - 2nd packet might arrive before 1st packet, but it will be delivered to the `App` only in the correct order (1st, then 2nd);
+- reliability:
+  - if packet is lost, `TCP` has ability to detect this and re-transmit the packet;
+  - of course, the re-transmition might be also failed, but at least there's an attempt;
+- flow control:
+  - `A` might be much faster, then `B` can proceed;
+  - `B` in this case will be overwelmed;
+  - `TCP` provides a mechanism to control the flow speed to avoid this;
+  - also, there could be a conjustion somewhere between `A` and `B` on the Internet, and `TCP` can slow down the flow to avoid it.
+
+With help of `TCP`, a "virtual connection" is created, when `A` and `B` connected with some kind of virtual pipe.
+
+
+
+
+### TCP: Buffers
+
+So when `TCP` connection is established betwen `A` and `B`, 2 virtual pipes are created:
+- `A`->`B`
+- `B`->`A`
+
+Actually, a buffers are created on both sides:
+- for `A`->`B` pipe:
+  - `A` writes to the `send buffer` on its side;
+  - `B` reads from the `receive buffer` on its side;
+- for `B`->`A` pipe:
+  - `B` writes to the `send buffer` on its side;
+  - `A` reads from the `receive buffer` on its side;
+
+Overall, 4 buffers: 
+- send/write on `A`;
+- send/write on `B`.
+
+Both pipes act at the same manner. The only difference is a direction.
+
+> **NOTE**: `TCP` doesn't send data immidiately. It does some internal optimization to decie when to send the data. Before sending, data is in the buffer.
+
+#### Sender side
+
+Sender **writes** some data to the `sender buffer`.
+
+`TCP` uses following criterias to decide when to **send** the data:
+- timing:
+  - `App` can write to a `send buffer` 1 byte at a time;
+  - to send each packet, you need to add `TCP` header and `IP` header - so 1 byte data will consume a lot of effort;
+  - so prior to send data from `send buffer`, `TCP` waits for some time (typically ~200ms) to see if new data will arrive;
+- we already have data of `MTU` size:
+  - when data in buffer has been kept less then ~200ms, but the size of data is alredy reached Maximum Transmition Unit size, it will be sent;
+  - (if you waited longer and created a packet bigger then MTU size, it'd be needed to make `IP fragmentation` as we can not send data bigger, then `MTU` - and that's consumes more effort, so should be avoided)
+
+
+#### Receiver side
+
+Some data arrived to the `receiver buffer`. Let's assume, it's in 1st, 2nd and 4th packets.
+
+`TCP` will:
+- deliver data from `1st` and `2nd` packets to the `App`;
+- not deliver data from `4th` packet for a while (as `3rd` packet is lost);
+- wait for the `3rd` packet for some time;
+- if no `3rd` packet arrived after some time, drop `4th` packet (as there's a gap).
+
+So `TCP` is aimed to deliver data at the same order it was sent by sender.
+
+> **NOTE**: `TCP` will decide, when to wake up the `App` in order to read data from the `receiver buffer`. It's not necessary just after packet arrives to the buffer. It depends on some timeline and the amount of data within the `receiver buffer`.
+
+
+
+## TCP vs UDP: boundaries between messages
+
+So we have 2 separate messages to be sent:
+- "Hello, world"
+- "Hello, Universe"
+
+Will receiver know, where is the boundary between those messages? (where 1st one is finished and 2nd is started)
+
+### Boundaries: UDP
+
+Each message is sent as a packet.
+
+Receiver gets each packet separately.
+
+So in case of `UDP` its clear for the receiver, where is 1st message and where its 2nd one.
+
+### Boundaries: TCP
+
+Both messages are:
+- written to the `sender buffer` on the sender side;
+- at some point in time some of the packets send over the network;
+- written to the `receiver buffer` on the receiver side;
+- at some pint in time data from some packets in buffer is delivered to the `App`.
+
+So in case of `TCP` it is not clear the boundary between such 2 messages, from the box.
+
+But you can handle it by yourselve. For example, by sending number of bytes to read from buffer for each message (something like "5 hello 6 world", so read from buffer 5 bytes, which will be "hello", then read 6 bytes which will be "world")
+
+
+## TCP vs UDP: hangling messages in the receiver buffer
+
+There's machine `A` and machine `B`.
+
+There 2 client on the machine `A`:
+- client `1` on port `50000`;
+- client `2` on port `60000`.
+
+There 1 server on the machine `B`:
+- server `S` on port `37`.
+
+
+If clients `1` and `2` both send messages (from the same machine `A`) to the server `S` (on machine `B`), will those messages be merged within the same `receiver buffer`?
+
+### Handling messages in receiver buffer: UDP
+
+All messages from `1` and `2` will be placed in one `receiver buffer`.
+
+But it's not a problem, as for `UDP` each message will be send as a separate packet.
+
+So yes, receiver will read all those packets from one buffer, but it will distinct easily, who was a sender, with no data merged.
+
+
+### Handling messages in receiver buffer: TCP
+
+Each `A` to `B` connection creates its own "virtual connection" (with 2 pipes).
+
+So even if `1` and `2` will send messages from the same machine, their port on the machine are different.
+
+The following connections are created in such case:
+- `IP A`:`Port 50000` <-> `IP B`:`Port 37` (consists of 2 corresponding pipes)
+- `IP A`:`Port 60000` <-> `IP B`:`Port 37` (consists of 2 corresponding pipes)
+
+For each client on the server will be:
+- separate `TCP` connection;
+- thus, separate "virtual pipe";
+- thus, separate `receiver buffer`
+
+So, messages from different clients on the same server will not be placed into the same `receiver buffer`. Separate buffer will be created for each client instead.
 
 
 
