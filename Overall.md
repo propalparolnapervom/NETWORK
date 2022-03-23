@@ -459,10 +459,21 @@ Thus, once packet is arrived with specified `Port` number as a destination, `OS`
 
 ## UDP Protocol
 
+The most important info, that is added within `UDP Header` (in addition to lower `IP Layer`):
+- source `Port` number;
+- destination `Port` number.
 
+UDP Applications:
+- DNS Protocol
+  - NOTE: But it uses `TCP` as well;
+- video/audio streaming, skype, zoom
+  - NOTE: Netflix, YouTube use `TCP` (because it's not real-time and can wait to load data);
+- real-time applications;
+- VPN Tunnel (OpenVPN).
 
-
-
+> **NOTE**: `UDP` doesn't support packets ordering (if it arrives in wrong order) and doesn't handle packets lost. `TCP` does. 
+> What if ordering and loss handling is cruical for you, but you don't want to use `TCP`?
+> In this case you have to handle ordering and packet lost on `App` level by yourselve.
 
 
 ## TCP Protocol
