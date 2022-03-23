@@ -1,3 +1,8 @@
+# Documentation
+
+[Udemy: Internet Security](https://www.udemy.com/course/du-internet-security)
+
+
 # How App communicates over the network?
 
 ## How App sends data
@@ -408,7 +413,59 @@ Thus, next time `A` sends traffic to `B`, it will use `R2`.
 
 
 
+# Layer 4: Transport
 
+## Transport Layer: Purpose
+
+
+### Analogy
+
+There is a company with many departments: IT, finance, operations, etc. 
+
+I work in the company in IT department.
+
+Some sender sends a letter to me.
+
+The postman delivers the letter to the company's reception desk. And girl from a repeption desk then somehow delivers letter to specific department within a company (me, in IT department in this case).
+
+> **NOTE**: How to deliver letter from sender to the company's reception desk - `Layer 3: Network`.
+>           How to deliver letter further from company's reception desk to me in IT department - `Layer 4: Transport`
+
+If letter was lost during delivery to company's reception desk - `Layer 3: Network` doesn't do anything. `TCP` from `Layer 4: Transport` will try to re-send lost packet and make a correct order (if it was broken).
+
+
+### Port
+
+To specify, which exact department within a company is a receiver (which exactly App on the computer), `Layer 4: Transport` provides additional info: `Port`.
+
+> **NOTE**: Application that waits for the packet, must let OS know that it will register for the `Port` number. So once a letter arrives to the reception desk with this `Port` specified, it should be delivered to the Application.
+
+`Socket` is a window between `App` and `OS Kernel`. `App` has to bind a `Socket` with some `Port` number. Thus `OS` knows that the `Port` number is registered by `App`.
+
+Thus, once packet is arrived with specified `Port` number as a destination, `OS` knows that it should:
+- put the packet to the buffer;
+- wake up necessary `App`, that is registered for the corresponding `Socket`, to let `App` read the packet from the buffer.
+
+## Protocols
+
+|                 | TCP  | UDP    |
+| ----------------| ---- | ------ |
+| Connection      |  Y   |    N    |
+| Packet boundary |  packet is removed, only data from inside is provided to App    |   data provided to App together with packet     |
+| Reliability      |   Y   |   N     |
+| Ordering      |   Y    |    N    |
+| Speed      |   N   |    Y    |
+| Broadcast      |  N    |   Y     |
+
+## UDP Protocol
+
+
+
+
+
+
+
+## TCP Protocol
 
 
 
