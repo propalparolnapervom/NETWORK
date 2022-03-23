@@ -317,27 +317,6 @@ ICMP is used for:
   - time exceeded
 
 
-
-### ICMP: Control Message "echo request/reply"
-
-This type of ICMP messages is used by `ping` tool:
-- `sender` sends ICMP message:
-  - with `8` in the `Type` field of `ICMP Header`;
-  - with some data in the `Data` field of `ICMP Header`;
-  - this is called a **request**.
-- once `receiver` gets this message, on its `Layer 3: Network` it:
-  - understands that this is a request message;
-  - sends back ICMP message, which is called **reply**;
-  - with `0` in the `Type` field of `ICMP Header`;
-  - with some data in the `Data` field of `ICMP Header`;
-
-If the data in reply is the same as in request:
-- the receiver is alive;
-- the connection is OK. 
-
-That's why it's called **echo**.
-
-
 ### ICMP: Error Message "time exceeded"
 
 The messages have `11` in the `Type` field of `ICMP Header`.
@@ -362,6 +341,82 @@ The messages have following in the `Code` field of `ICMP Header` (subtype of the
 | 2 | Destination **protocol** unrecheable |
 | 3 | Destination **port** unrecheable |
 | 4 | Fragmentation required, but DF flag is set |
+
+
+
+### ICMP: Control Message "echo request/reply"
+
+This type of ICMP messages is used by `ping` tool:
+- `sender` sends ICMP message:
+  - with `8` in the `Type` field of `ICMP Header`;
+  - with some data in the `Data` field of `ICMP Header`;
+  - this is called a **request**.
+- once `receiver` gets this message, on its `Layer 3: Network` it:
+  - understands that this is a request message;
+  - sends back ICMP message, which is called **reply**;
+  - with `0` in the `Type` field of `ICMP Header`;
+  - with some data in the `Data` field of `ICMP Header`;
+
+If the data in reply is the same as in request:
+- the receiver is alive;
+- the connection is OK. 
+
+That's why it's called **echo**.
+
+
+
+### ICMP: Control Message "redirect"
+
+The messages have `5` in the `Type` field of `ICMP Header`.
+
+The messages have following in the `Code` field of `ICMP Header` (subtype of the main type).
+
+| Code | Reason |
+| ---- | ------ |
+| 0 | Redirect for **network** |
+| 1 | Redirect for **host** |
+
+
+#### Purpose of redirect ICMP control message
+
+A local network has:
+- 2 routers: `R1` and `R2`;
+- computer `A`.
+
+Another local network has:
+- computer `B`.
+
+`A` -> `B` communication should be done.
+
+Usually, the best way to do that is to route traffic via `R1`. So `A` has corresponding item in its route table:
+- to reach `B`, use `R1`.
+
+Then something changed within a network, and `R1` realized that `R2` would be the best choice now. But `A` still has old item in its route table.
+
+So `R1` still gets trafic from `A`, but now it redirects it to `R2`.
+
+For such situation, `R1` can send redirect ICMP control message to `A` with a suggestion to update its route table to the more optimal one:
+- to reach `B`, use `R2`.
+
+Thus, next time `A` sends traffic to `B`, it will use `R2`.
+
+> **NOTE**: No security is involved into this protocol. But seems like, for example, OS Ubuntu has `net.ipv4.conf.all.accept_redirects=0` by default, which doesn't allow to accept such ICMP redirect messages from security p.o.v 
+
+> **NOTE**: You can redirect TO **only** machines within your local network.
+
+> **NOTE**: You can send redirect messages **only** FROM machines within your local network.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
