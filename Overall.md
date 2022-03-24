@@ -556,6 +556,123 @@ So `TCP` is aimed to deliver data at the same order it was sent by sender.
 
 
 
+### TCP: Order and Reliability
+
+Each byte in the `sender buffer` has a sequence number.
+
+When `TCP` decides its time to send data from `sender buffer`, it gets some amount of bytes and forms a packet.
+
+The packet has `seq #` field in the header, which is a sequence number of the 1st byte in the packet.
+
+Thus, when a packets arrive to the `receiver buffer`, they put in right order.
+
+When its time to provide data from packets to the `App`, it will be done only for packets without gaps in the order.
+
+For example, if packets #1 and #3 have arrived, its clear that packet #2 is not in the buffer so far.
+
+The data will be provided from packet #1, and then stoped. Even if we have packet #3. Next portion of data will be provided only after packet #2 arrives.
+
+Receiver sends `ACK` message, where it says: next expected sequence is #2. Sender then tries to re-send this sequence.
+
+Once a Sender gets `ACK` message with some sequence #, it knows that everything prior to the sequence # was arrived successfully.
+
+
+
+### TCP: Flow and Congestion Control
+
+Situations could be:
+- `A` can send data much faster then `B` can consume the data;
+- `A` sends data to `B` with normal pace, but there is a congestion on some of the routers within an Internet;
+
+To avoid such situations, there `TCP` uses a `sliding window` on a `sender buffer`: starts at `seq #X`, ends on `seq #Y`.
+
+> **NOTE**: Within `sliding window`, Sender can send data as fast as it can, without waiting for `ACK` messages from a Receiver.
+
+Once sender got `ACK` message (for `seq #Z`, for example), it moves start point of `sliding window` accordingly (so now it starts from `seq #Z`).
+
+The length of `sliding window` is changing dynamically:
+- depending on Receiver capacity:
+  - when Receiver realizes only 100 bytes left within its `receiver buffer`, it sends to Sender a `window advertising message` that 100bytes is a maximum it can get;
+  - sender then makes length of its `sliding window` no more then one, specified in `window advertising message` (so, 100bytes in this example);
+  - if a `window adevtising message` says 0 bytes left on Receiver side, Sender shrinks its `sliding window` to 0 - so no new data will be send at all;
+- depending on traffic on the route between Sender and Receiver:
+  - there could be a congestion at some of the routers within an Internet, when router is so busy, it can't handle new packets, so it drops new packets;
+  - as packets dropped, receiver didn't get it, so no `ACK` messages sent to the sender, so sender realizes something went wrong on the route;
+  - sender knows that if he keeps send packets with the same pace, situation can get worth;
+  - thus, sender shrinks `sliding window` to speed down packets sending process;
+
+> **NOTE**: It would be a constant congestion in the Internet, if all senders sent its packets with no such aggastments regarding congestions.
+
+
+## TCP Header
+
+It contains fields to provide information, needed for a mechanism, described above. Including:
+- src/dest ports;
+- sequence number (of a first byte in the packet, added on the sender side);
+- acknowledgment number (`ACK` bit has to be turned on) (added on receiver side to describe, from which sequence # the gap in `receiver buffer` starts);
+- window size (`window advertising message` - how many bytes are left within a `receiver buffer`);
+- urgent pointer (`URG` bit has to be turned on) (within a `data` field, the end of the first bytes, that are considered as urgent - so need to be read first; data after that pointer is considered as normal data);
+- bits to be turned on or off:
+  - URG
+  - ACK
+  - PSH
+  - RST
+  - SYN
+  - FIN
+
+
+## TCP Connections Handling
+
+### TCP: Establish Connection (TCP Handshake)
+
+`A` ----> `B`
+- **SYN** bit turned on (to init conn for this direction);
+- **sequence number** field set to **X** (random number for this direction);
+
+`A` <---- `B`
+- **ACK** bit turned on (to show that init request was received from `A`);
+- **acknowledgment number** field set to **X+1** (to show that init number X was received from `A`, it will be sent back after set +1);
+- **SYN** bit turned on (to init conn for this direction);
+- **sequence number** field set to **Y** (random number for this direction);
+
+`A` ----> `B`
+- **ACK** bit turned on (to show that reply was received from `B`);
+- **acknowledgment number** field set to **Y+1** (to show that number Y was received from `B`, it will be sent back after set +1);
+- **sequence number** field set to **X+1** (??? to show that **ACK** message from `B` was received succesfully ???);
+
+Once the handshake is done, the buffers will be created specifically for this `TCP` connection:
+- on the `A` side:
+  - `sender buffer`
+  - `receiver buffer`
+- on the `B` side:
+  - `sender buffer`
+  - `receiver buffer`
+
+
+### TCP: Finish Connection (Normal)
+
+Connection between `A` and `B` is bi-directional. So it has to be finished one by one: one direction, then second direction.
+
+Finishing one direction:
+- `A` ----> `B`
+  - **FIN** bit turned on (to init conn finishing for this direction);
+  - **sequence number** field set to **X** (whatever sequence number was for the buffer for this direction);
+- `A` <---- `B`
+  - **ACK** bit turned on (to acknowlege that init conn finishing was received for this direction);
+  - **acknowlege number** field set to **X+1** (to show that init number X was received from `A`, it will be sent back after set +1);
+
+Finishing other direction:
+- `A` <---- `B`
+  - **FIN** bit turned on (to init conn finishing for this direction);
+  - **sequence number** field set to **Y** (whatever sequence number was for the buffer for this direction);
+- `A` ----> `B`
+  - **ACK** bit turned on (to acknowlege that init conn finishing was received for this direction);
+  - **acknowlege number** field set to **Y+1** (to show that init number X was received from `A`, it will be sent back after set +1);
+
+
+
+
+
 ## TCP vs UDP: boundaries between messages
 
 So we have 2 separate messages to be sent:
