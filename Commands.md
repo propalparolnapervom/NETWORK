@@ -201,6 +201,51 @@ dig -t mx ukr.net
     ;; MSG SIZE  rcvd: 56
 ```
 
+#### dig: DNS quering demonstration
+
+Let's resolve IP for `www.example.com` as an example of recursive DNS quering process.
+
+> **NOTE**: With help of `dig @<NS> <DNS_NAME>` we can ask specific `Namespace Server` to resolve necessary DNS name
+
+**Step 1**: Ask one of [Root Servers](https://www.iana.org/domains/root/servers) about `www.example.com`
+```
+dig @a.root-servers.net www.example.com
+
+  ...
+  ;; AUTHORITY SECTION:
+  com.			172800	IN	NS	e.gtld-servers.net.
+  com.			172800	IN	NS	b.gtld-servers.net.
+  com.			172800	IN	NS	j.gtld-servers.net.
+  ...
+```
+It doesn't provide IP for `www.example.com`, but it provides info where to find `NS` for `.com` domain
+
+
+**Step 2**: Ask one of provided `NS` for `.com` domain about `www.example.com`
+```
+dig @e.gtld-servers.net. www.example.com
+
+  ...
+  ;; AUTHORITY SECTION:
+  example.com.		172800	IN	NS	a.iana-servers.net.
+  example.com.		172800	IN	NS	b.iana-servers.net.
+  ...
+```
+It doesn't provide IP for `www.example.com`, but it provides info where to find `NS` for `example.com` domain
+
+
+**Step 3**: Ask one of provided `NS` for `example.com` domain about `www.example.com`
+```
+dig @a.iana-servers.net. www.example.com
+
+  ...
+  ;; ANSWER SECTION:
+  www.example.com.	86400	IN	A	93.184.216.34
+  ...
+```
+The `NS` of this level knows IP for necessary website, so resolves it.
+
+
 ## Scan Remote Server to find: open ports, OS, etc
 
 ### nmap (network map)
