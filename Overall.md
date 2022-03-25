@@ -805,18 +805,29 @@ DNS is too big to have it on one centrilized computer, so some hierarcy (categor
 DNS queiring is iterative process: if Local DNS server doesn't know the IP, it will ask each server from DNS hierarcy until he gets the answer.
 
 So for `www.example.com` it would be like:
-- User Machine ---[www.example.com]---> Local DNS server
+- `User Machine` --- [www.example.com] --->   `Local DNS server`
 
-- Local DNS Server ---[www.example.com]---> Root server
-- Local DNS Server <---[.com]---            Root server
+- `Local DNS Server`   --- [www.example.com] --->   `Root server`
+- `Local DNS Server`   <--- [.com] ---              `Root server`
 
-- Local DNS Server ---[www.example.com]---> Top Level Domain server for `.com`
-- Local DNS Server <---[example.com]---     Top Level Domain server for `.com`
+- `Local DNS Server`   --- [www.example.com] --->   `TLD server` for `.com`
+- `Local DNS Server`   <--- [example.com] ---       `TLD server` for `.com`
 
-- Local DNS Server ---[www.example.com]---> Domain server for `example.com`
-- Local DNS Server <---[199.191.50.18]---   Domain server for `example.com`
+- `Local DNS Server`   --- [www.example.com] --->   `Domain server` for `example.com`
+- `Local DNS Server`   <--- [199.191.50.18] ---     `Domain server` for `example.com`
 
-- User Machine <---[199.191.50.18]--- Local DNS Server
+- `User Machine` <---[199.191.50.18]--- `Local DNS Server`
+
+
+> **NOTE**: The `Local DNS Server` knows where to find IP of `Root server`, becase such cruical information  often is embedded into the software.
+> For example, Ubuntu has `/etc/bind/named.conf.default-zones` file, which points to the `/etc/bind/db.root` file, where IPs for all 13 `Root servers` specified.
+
+In other case, `Local DNS Server` wouldn't know how to resolve any DNS name, as it doesn't have other `Local DNS server`, but it must go to `Root server` instead.
+
+> **NOTE**: The `Local DNS Server` is a historical name from times, when in order to get info as quickly as possible, the server was placed directly within your local network.
+> Nowadays, it can be placed anywhere, even in the Interned. So, for example, Google's `NS` `8.8.8.8`, located in the Internet, can be specified by you as your `Local DNS Server`.
+
+
 
 
 Let's resolve IP for `www.example.com` as an example of such recursive DNS quering process.
@@ -862,10 +873,25 @@ dig @a.iana-servers.net. www.example.com
 The `NS` of this level knows IP for necessary website, so resolves it.
 
 
+### DNS: Cache
+
+As it takes a time to get the result, `Local DNS Server` tries to keep in the cache it for some time.
+
+It keeps everything he got from the iterative DNS quering. So for example `www.example.com`, used above, it will remember:
+- NS for `.com` (`NS` record);
+- NS for `.example.com` (`NS` record);
+- IP for `www.example.com` (`A` record).
+
+Thus, if next time `www.primer.com` will be requested by `User Machine`, `Local DNS server` can start asking not from `Root Servers`, but from lower TLD NS for `.com`.
+
+> **NOTE**: The items within a `DNS Cache` are stored for some amount of time, which is defined by the NS, which provides the reply.
 
 
+### DNS: What happens when you buy a Domain
 
+For example, you have bought `xburser.com` domain from `GoDaddy`.
 
+You have to add an info to `.com` TLD `NS`
 
 
 
