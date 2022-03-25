@@ -828,8 +828,6 @@ In other case, `Local DNS Server` wouldn't know how to resolve any DNS name, as 
 > Nowadays, it can be placed anywhere, even in the Interned. So, for example, Google's `NS` `8.8.8.8`, located in the Internet, can be specified by you as your `Local DNS Server`.
 
 
-
-
 Let's resolve IP for `www.example.com` as an example of such recursive DNS quering process.
 
 > **NOTE**: With help of `dig @<NS> <DNS_NAME>` we can ask specific `Namespace Server` to resolve necessary DNS name
@@ -873,6 +871,35 @@ dig @a.iana-servers.net. www.example.com
 The `NS` of this level knows IP for necessary website, so resolves it.
 
 
+
+### DNS: What happens when you buy a Domain
+
+For example, you have bought `xburser.com` domain from `GoDaddy`.
+
+You have to add an info to corresponding TLD (`.com` in this case). When you buy the domain, `GoDaddy` makes the adding instead of you.
+
+
+
+
+### DNS: Let User Machine know where Local DNS server is
+
+
+> **NOTE**: This is for Linux.
+
+The `User Machine` knows where to find IP of `Local DNS Server`, becase of information specified within `/etc/resolv.conf` file.
+
+
+The file above is dynamically generated and concatenates info from:
+- `/etc/resolvconf/resolv.conf.d/head` file - so new info can be added manually here, to apper in `/etc/resolv.con` eventually;
+- `DHCP` - dynamically provided info (ip, subnet mask, default gw, dns server)
+
+The following should be ran, to apply changes from manually updated above
+```
+sudo resolvconf -u
+```
+
+
+
 ### DNS: Cache
 
 As it takes a time to get the result, `Local DNS Server` tries to keep in the cache it for some time.
@@ -887,15 +914,11 @@ Thus, if next time `www.primer.com` will be requested by `User Machine`, `Local 
 > **NOTE**: The items within a `DNS Cache` are stored for some amount of time, which is defined by the NS, which provides the reply.
 
 
-### DNS: What happens when you buy a Domain
-
-For example, you have bought `xburser.com` domain from `GoDaddy`.
-
-You have to add an info to `.com` TLD `NS`
 
 
+### DNS: Headers
 
-
+`DNS` uses `UDP`.
 
 
 
