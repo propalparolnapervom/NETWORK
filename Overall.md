@@ -762,25 +762,61 @@ So, messages from different clients on the same server will not be placed into t
 
 
 
+# Layer 4: Application
 
 
+## DNS
+
+### DNS: Zone vs Domain
+
+`Zone` - a collection of the `Records` that is hosted on the `Name Server`.
+
+If **whole** domain info is hosted on one `NS`, then `Zone` and `Domain` are equal: `Domain` has one `Zone`.
+
+If domain is a big one, and you don't want to host all its information of single `NS`. Instead, you want to keep some of its subdomain on different `NS`: that's when `Domain` and `Zone` are different.
+
+> NOTE: So:
+> - `Zone` is associate with a `NS`;
+> - `NS` could host many `Zones`;
+> - each `Zone` represents a sub-domain;
 
 
+`Zone File` - refers to the DB that is used by `NS` for the particular sub-domain.
+
+### DNS: Hierarcy
+
+DNS is too big to have it on one centrilized computer, so some hierarcy (categorization) to make it decentralized:
+- [Root Servers](https://www.iana.org/domains/root/servers);
+- TLD (Top Level Domain) Servers:
+  - for `.com` domain;
+  - for `.ua` domain;
+  - etc
+- next levels, if needed:
+  - for `example.com`, for example;
+  - for `museum.ua`, for example;
+- next levels, if needed:
+  - for `uk.example.com`, for example;
+  - for `tickets.museum.ua`, for example;
 
 
+### DNS: Query Process
 
 
+DNS queiring is iterative process: if Local DNS server doesn't know the IP, it will ask each server from DNS hierarcy until he gets the answer.
 
+So for `www.example.com` it would be like:
+- User Machine ---[www.example.com]---> Local DNS server
 
+- Local DNS Server ---[www.example.com]---> Root server
+- Local DNS Server <---[.com]---            Root server
 
+- Local DNS Server ---[www.example.com]---> Top Level Domain server for `.com`
+- Local DNS Server <---[example.com]---     Top Level Domain server for `.com`
 
+- Local DNS Server ---[www.example.com]---> Domain server for `example.com`
+- Local DNS Server <---[199.191.50.18]---   Domain server for `example.com`
 
-
-
-
-
-
-
+- User Machine <---[199.191.50.18]--- Local DNS Server
 
 
 
