@@ -625,17 +625,19 @@ It contains fields to provide information, needed for a mechanism, described abo
 
 ### TCP: Establish Connection (TCP Handshake)
 
-`A` ----> `B`
+To establish `TCP` connection between `A` and `B`, a handshake from 3 steps should be done.
+
+`Step 1`: `A` ----> `B`
 - **SYN** bit turned on (to init conn for this direction);
 - **sequence number** field set to **X** (random number for this direction);
 
-`A` <---- `B`
+`Step 2: `A` <---- `B`
 - **ACK** bit turned on (to show that init request was received from `A`);
 - **acknowledgment number** field set to **X+1** (to show that init number X was received from `A`, it will be sent back after set +1);
 - **SYN** bit turned on (to init conn for this direction);
 - **sequence number** field set to **Y** (random number for this direction);
 
-`A` ----> `B`
+`Step 3`: `A` ----> `B`
 - **ACK** bit turned on (to show that reply was received from `B`);
 - **acknowledgment number** field set to **Y+1** (to show that number Y was received from `B`, it will be sent back after set +1);
 - **sequence number** field set to **X+1** (??? to show that **ACK** message from `B` was received succesfully ???);
@@ -651,9 +653,14 @@ Once the handshake is done, the buffers will be created specifically for this `T
 
 ### TCP: Finish Connection (Normal)
 
-Connection between `A` and `B` is bi-directional. So it has to be finished one by one: one direction, then second direction.
+`App` wants to finish communication, in a normal way. 
 
-Finishing one direction:
+It closes a `Socket`, which triggers following steps.
+
+> **NOTE**: Connection between `A` and `B` is bi-directional. 
+> So it has to be finished one by one in 2 steps: one direction, then second direction.
+
+`Step 1`: Finishing one direction
 - `A` ----> `B`
   - **FIN** bit turned on (to init conn finishing for this direction);
   - **sequence number** field set to **X** (whatever sequence number was for the buffer for this direction);
@@ -661,7 +668,7 @@ Finishing one direction:
   - **ACK** bit turned on (to acknowlege that init conn finishing was received for this direction);
   - **acknowlege number** field set to **X+1** (to show that init number X was received from `A`, it will be sent back after set +1);
 
-Finishing other direction:
+`Step 2`: Finishing other direction (same steps, but from other side)
 - `A` <---- `B`
   - **FIN** bit turned on (to init conn finishing for this direction);
   - **sequence number** field set to **Y** (whatever sequence number was for the buffer for this direction);
@@ -669,9 +676,20 @@ Finishing other direction:
   - **ACK** bit turned on (to acknowlege that init conn finishing was received for this direction);
   - **acknowlege number** field set to **Y+1** (to show that init number X was received from `A`, it will be sent back after set +1);
 
+At this point both sides terminated its connections. `TCP` connection between `A` and `B` is no longer exist.
 
 
+### TCP: Finish Connection (Abnormal)
 
+When some abnormal situation happens, `TCP` connection can be terminated in abnormal way.
+
+No bi-directional closing is present in this way. Only one side initiates a termination.
+
+- `A` ----> `B`
+  - **RST** bit turned on (to init conn finishing for whole connection);
+  - **sequence number** field set to **X** (whatever sequence number was for the buffer for this direction);
+
+> **NOTE**: In such case `B` would accept it only with **sequence number** field set correctly to **X** (together with other info: src/dst IP, src/dst Ports).
 
 ## TCP vs UDP: boundaries between messages
 
