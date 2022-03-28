@@ -918,7 +918,101 @@ Thus, if next time `www.primer.com` will be requested by `User Machine`, `Local 
 
 ### DNS: Headers
 
-`DNS` uses `UDP`.
+`DNS` uses `UDP` for querying.
+
+??? It uses `TCP` to share info between zones. ???
+
+
+### DNS: Reverse lookup
+
+`DNS` -> `IP`: forward DNS lookup. `IP` -> `DNS`: reverse DNS lookup.
+
+The `NS` resolves info for both directions. So necessary `NS` has to be found out for reverse lookup.
+
+But for forward lookup we have a name structure, that helps us to find necessary `NS` (root -> TLD -> other levels).
+
+For the reverse lookup we have to use a structure as well. After necessary IP is reversed and added with `.in-addr.arpa` at the end, its searching looks pretty similar to the forward DNS lookup: starts with root `NS`, looks for `.in-addr.arpa` `NS`, then looks for the `NS` for 1st octet of IP (in the reversed name its the last one), then octed by octed.
+
+Lets take a look for the `128.230.18.198`:
+
+> **NOTE**: Only if the reverse lookup zone has been set up properly.
+
+**Step 1**: Ask root `NS` whether it knows about `128.230.18.63` IP.
+> **NOTE**: Pay attention at `QUESTION SECTION` section.
+> It shows that necessary IP was reversed and completed with `in-addr.arpa` part,
+> so actual search is done for `63.18.230.128.in-addr.arpa` DNS name.
+```
+dig @a.root-servers.net -x 128.230.18.63
+
+  ...
+  ;; OPT PSEUDOSECTION:
+  ; EDNS: version: 0, flags:; udp: 4096
+  ;; QUESTION SECTION:
+  ;63.18.230.128.in-addr.arpa.	IN	PTR
+
+  ;; AUTHORITY SECTION:
+  in-addr.arpa.		172800	IN	NS	e.in-addr-servers.arpa.
+  in-addr.arpa.		172800	IN	NS	f.in-addr-servers.arpa.
+  in-addr.arpa.		172800	IN	NS	d.in-addr-servers.arpa.
+  ...
+```
+Root `NS` doesn't know about `63.18.230.128.in-addr.arpa` DNS name, but suggests to ask `in-addr.arpa` `NS`.
+
+**Step 2**: Ask `in-addr.arpa` `NS` regarding necessary IP.
+```
+dig @e.in-addr-servers.arpa. -x 128.230.18.63
+  ...
+  ;; AUTHORITY SECTION:
+  128.in-addr.arpa.	86400	IN	NS	arin.authdns.ripe.net.
+  128.in-addr.arpa.	86400	IN	NS	z.arin.net.
+  128.in-addr.arpa.	86400	IN	NS	y.arin.net.
+  128.in-addr.arpa.	86400	IN	NS	r.arin.net.
+  ...
+```
+It doesn't know regarding `63.18.230.128.in-addr.arpa` DNS name, but suggests to ask `128.in-addr.arpa` `NS`.
+
+
+**Step 3**: Ask `128.in-addr.arpa` `NS` regarding necessary IP.
+```
+dig @arin.authdns.ripe.net -x 128.230.18.63
+  ...
+  ;; AUTHORITY SECTION:
+  230.128.in-addr.arpa.	86400	IN	NS	ns1.syr.edu.
+  230.128.in-addr.arpa.	86400	IN	NS	ns2.syr.edu.
+  ...
+```
+It doesn't know regarding `63.18.230.128.in-addr.arpa` DNS name, but suggests to ask `230.128.in-addr.arpa` `NS`.
+
+**Step 4**: Ask `230.128.in-addr.arpa` `NS` regarding necessary IP.
+```
+dig @ns1.syr.edu -x 128.230.18.63
+  ...
+  ;; ANSWER SECTION:
+  63.18.230.128.in-addr.arpa. 60	IN	PTR	syr-prod-web.syracuse.edu.
+  63.18.230.128.in-addr.arpa. 60	IN	PTR	syr-prod-web1.syr.edu.
+  63.18.230.128.in-addr.arpa. 60	IN	PTR	syr.edu.
+  ...
+```
+This `NS` knows necessary IP, so replies correspondig DNS record via `PTR` record type.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
