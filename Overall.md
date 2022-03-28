@@ -997,14 +997,194 @@ This `NS` knows necessary IP, so replies correspondig DNS record via `PTR` recor
 
 
 
+# VPN
+
+VPN - Virtual Private Network.
+
+The communication within a private network is usually much trustworthy, then communication between inside and outside of private network.
+
+The goal of VPN is to let computer outside private network to communicate with resources within a private network, as it was inside of private network as well.
+
+The following should be achived to let it happen:
+- traffic protected:
+  - encrtyption
+  - integritiy protection
+- authentication implemented 
+  - how do we know, that specific computer outside is allowed to be inside of the private network;
 
 
 
+## Analogy
+
+There're:
+- city `A`;
+- city `B`;
+- the `bus` (a packet, in terms of communication);
+- the `train` (another packet, in terms of communication);
+- the `train` is safe way to get from `A` to `B`;
+- point `X`;
+- point `Y`;
+- a dangerous zone, that devides area on 2 halves:
+  - 1 half: city `A` and point `X`;
+  - 2 half: city `B` and point `Y`;
+- direct path between `X` and `Y` is going through dangerous zone, so it's dangeours;
+- direct path between city `A` and city `B`is going through dangerous zone as well, but its done with armored `train` with help of railways, so it's safe.
+
+
+You're on the `bus`.
+
+You need to get from `X` to `Y`. But `X` -> `Y` path is dangerous. 
+
+So you have to use `X` -> `A` -> `B` -> `Y` path, with help of `train`.
+
+And the're 2 ways to do that.
+
+
+### Analogy: Approach #1: SSH Tunneling (Port Forwarding)
+
+Necessary safe path `X` -> `A` -> `B` -> `Y` is done by:
+- buying ticket #1: getting **on** the `bus`;
+- getting `X` -> `A` on the `bus` itself;
+- going **off** the `bus`;
+- buying ticket #2: getting `A` -> `B` on the `train` itself;
+- going **off** the `train`;
+- buying ticket #3: getting `B` -> `Y` on another `bus` itself;
+
+So you need 3 different tickets to get from `X` to `Y` and get off the ride after each leg of the path:
+- bus #1;
+- train;
+- bus #2.
+
+### Analogy: Approach #2: IP Tunneling
+
+Necessary safe path `X` -> `A` -> `B` -> `Y` is done by:
+- buying ticket #1: getting **on** the `bus`;
+- getting `X` -> `A` on the `bus` itself;
+- the `bus` then goes **on** the `train`;
+- getting `A` -> `B` on the `train` (so you're inside of the `bus`, the `bus` is inside of the `train`);
+- the `bus` then goes **off** the `train`;
+- getting `B` -> `Y` on the `bus` itself;
+
+So you need 1 ticket to the initial `bus` to get from `X` to `Y`, as you never leave the `bus` till the end of the traveling.
+
+In this case instead of buying other tickets, we just ask `bus` driver to do not go `X` -> `Y` directly, but to change route to `X` -> `A` -> `B` -> `Y` instead. But no changes for **your** behaviour you were supposed to go `X` -> `Y`, and you did that (yes, via another path though).
 
 
 
+## SSH Tunneling (Port Forwarding)
+
+According to `Analogy: Approach #1` block.
+
+> **NOTE**: It's not the most convenient way. It's here just for education.
+
+Safe path between `A` and `B` is estabslished `SSH` connection between server `A` and server `B`: so data within this connection is encrypted, with integrity kept.
+
+There's a port `8000` (for example) on the server `A`. Everything it gets to this port, is forwarded to the `SSH connection`, to get to the server `B`.
+
+If there's a need to make a direct connection from server `X` to server `Y` via telnet, it's not safe.
+
+But you can get connection from `X` to `A:8000`, then it will be safely forwarded via `SSH` tunnel to `B`, then to the `Y:23`.
+
+In this approach, those a different packets:
+- `X` -> `A` is one `TCP` packet;
+- `A` -> `B` is another `TCP` packet;
+- `B` -> `Y` is another `TCP` packet;
+
+### Example
+
+Make `X` -> `Y` telnet, via safe `A` -> `B` `SSH` tunnel
+```
+###############
+# On server `A`
+###############
+# Establish SSH tunnel
+ssh -L <PORT_A>:<IP_Y>:<PORT_Y> <IP_B>
+
+###############
+# On server `X`
+###############
+# Make a telnet connection
+telnet <IP_A> <PORT_A>
+```
 
 
+## IP Tunneling
+
+According to `Analogy: Approach #2` block. 
+
+So it's "put your packet inside other packet" approach.
+
+There're a couple of questions to answer, to make it work.
+
+**Question #1:** How do we get the bus to the train station?
+
+Initially path for bus is `X` -> `Y`, and we want to make it `X` -> `A` for starting.
+
+So routing table are involved.
+
+
+**Question #2:** How do we get initial packet to another packet?
+
+Once packet gets to the router/computer, it:
+- stripped off `MAC Header` (Layer 2), to see what is destination IP within in `IP Header` (Layer 3);
+- if current router/computer is not a destination, the packet never leaves `OS kernel`:
+  - it has to be send further according to routing rules;
+  - a new `MAC Header` (Layer 2) is added to the packet;
+  - the packet is sent to further route;
+- if current router/computer is a destination, the packet leaves `OS kernel`:
+  - headers are stripped off, to get data from the packet from Layer 3 to Layer 7.
+
+Thus, we can see actual data (on application layer, outside of `OS kernel`) only if computer is a destination one. In other case, we never get it higher then `Layer 3`.
+
+So how can we put a packet to another packet, if we don't see it?
+- IPSec Approach;
+- SSL/TLS Approach (TUN/TAP).
+
+### IP Tunneling: IPSec Approach
+
+As IP packet is always inside a `OS kernel` during routing, `IPSec` was introduced. Which is a sub-protocol of `IP` protocol.
+
+To create a tunnel (a railway between `A` and `B`), you need to create a `IPSec` packet (a `train`), where original `IP` packet (a `bus`) will be put in.
+
+So:
+- original IP packet has information within its `IP Header`: IP destination is `X` -> `Y`;
+- once original IP packet gets to the `A` server (this is a `train`):
+  - a new specific header is added, `IPSec Header`; 
+  - original IP packet is considered as a payload to that `IPSec Header`;
+  - this payload is encrypted;
+  - new `IP Header` is added to the updated packet, which contains another info: IP destination is `A` -> `B`;
+
+You do all of this inside of `OS kernel`. Thus, whenever you have to do any changes to this process, you have to update the `OS kernel`. And modifying `OS kernel` might be no reliable (encryption, key exchange).
+
+So there's another approach.
+
+
+### IP Tunneling: SSL/TLS Approach (TUN/TAP)
+
+Since 2000, a new technology called `TUN/TAP` was created, to enable the tunneling.
+
+> **NOTE**: The main idea is to provide a way for the `App` to the the **packet itself**, instead of its data.
+
+Usually original IP packet is inside `OS kernel`. If it's correct destination, it's provided to to the higher layers, the headers are stripped off. So `App` eventually gets the data from the packet, but not the packet itself.
+
+> **NOTE**: A `TUN/TAP` is a **virtual interface**, which allows `App` to get entire `IP packet` itself out, to the `Application Layer`. Once it there, `App` can treat is as usual data. Thus, to put it to the new `IP packet` and send it over the network.
+
+So:
+- original IP packet has information within its `IP Header`: IP destination is `X` -> `Y`;
+- once original IP packet gets to the `A` server:
+  - `App` gets the entire packet out of the `OS kernel`, to application layer;
+  - sends it to the `B` server, as it would done this with any other usual data (this is the `train`):
+    - new `TCP/UDP Header` is added;
+    - original `IP packet` is treated as a payload for this new header;
+    - this payload is encrypted;
+    - new `IP Header` is added: IP destination is `A` -> `B`;
+
+The communication `A` -> `B` between `App` is a normal communication. The only difference is that instead of regular data inside the packet there's another packet.
+
+The advantage of this VPN approach, comparing to previously described `IPSec`: all is done by `App`, so no `OS kernel` modifications has to be done.
+If you need to update `App`, you update the `App`. No need to update `OS kernel`.
+
+> **NOTE**: In these days, most of the VPN software uses this `SSL/TLS` (`TUN/TAP`) approach.
 
 
 
