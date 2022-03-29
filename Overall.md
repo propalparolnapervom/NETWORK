@@ -1255,6 +1255,109 @@ So:
 > - "UP" state of the new interface.
 > For example, `ifconfig` command should show all of that info.
 
+As `TAP` interface can get frames from `Layer 2` to the `App`, it can be sent as usual data over the network to any other location, unpacked and then distributed within new private network via `MAC Adress` as it would be done in the original `private network`.
+
+In this case, information between both `private networks` are distributed in the similar way as it would be one `private network`, physically connected to the one land. This enables data centers to create such `virtual networks` with help of `TAP` interfaces, for example.
+
+
+## How VPN actually works: Going _To_ Private Network (Client Side)
+
+> **NOTE**: In this part: 
+> - how to get to the `train` station on the `bus`;
+> - how to load whole `bus` to the armoured `train` at `A`;
+> - how the armoured `train` with `bus` inside gets to the `B`.
+
+We have:
+- server `A` with VPN client installed:
+  - additional `TUN` interface is created;
+  - IP address assigned to the `TUN` interface;
+- server `B` with VPN server installed;
+- server `Y` that need to be reached via VPN eventually;
+- servers `A` and `B` are on the different private networks (connected unsafely via Internet);
+- servers `B` and `Y` are both on the same private network;
+
+Let's say, we want to ping server `Y` from server `A`, via VPN.
+
+Once command `ping <IP_Y>` started on `A`:
+- regular data provided from `App` to `OS kernel`;
+- the `Network stack` within a `OS kernel` created initial packet (data + ICMP header + IP header)
+  - as we talking about `TUN` interface, the packet is taken from this point (so no MAC header added yet);
+- packet goes to the routing table of `A` server;
+- previously configured, routing table on `A` says that if network of `<IP_Y>` has to be reached, redirect traffic to the `TUN` interface;
+- `TUN` interface then used by `App` (`TUN` program, which is VPN client in our case) to get te original IP packet;
+- then `App` encrypts the original IP packet;
+- then `App` sends encrypted original IP packet as it would do with regular data, so:
+  - socket API is opened;
+  - the data (which is encrypted original IP packet) is sent via that opened `socket interface` to the `OS kernel`;
+  - the `Network stack` within a `OS kernel` creates new packet, via UDP, for example (data + UDP header + IP header + MAC header):
+  - **NOTE**: Now IP header has different info: `A` -> `B`
+- then new packet gets to the routing table on `A` again;
+- previously configured, routing table on `A` says that if network of `<IP_B>` has to be reached, redirect traffic to the real interface, connected to the network;
+
+New packet safely arrives to the `B`, in a regular approach.
+
+
+## How VPN actually works: Going _To_ Private Network (Server Side)
+
+> **NOTE**: In this part: 
+> - how to take off `bus` from the armoured `train` at `B`;
+> - how to get `bus` from `B` to `Y`.
+
+Once new packet (`train` with `bus` inside) arrives to the `B`, where VPN server installed:
+- it goes through regular steps:
+  - via physical network interface to the `OS kernel`;
+  - through its `Network stack`, where all header are stripped off;
+  - via regular `socket interface` (with some `App` port mapped to it);
+- as of now, content of new packet (which is encrypted original IP packet in this case) is provided to the `App` (`TUN` program, which is VPN server is our case);
+- `App` (`TUN` program, which is VPN server is our case) decrypts the data and gets original IP packet;
+  - as original destination within original IP packet is `Y`, and we're on `B`, it has to be sent further;
+  - but we're just an `App`, we can't route traffic; only `OS kernel` can;
+  - thus, we have to give this original IP packet to the `OS kernel`;
+  - as an `App`, we can't give the original IP packet via regular `socket interface`, as `OS kernel` would treat it as regular payload, and will struct a new packet again;
+- thus, a `TUN` interface will be used by `App` to give whole IP packet to the `OS kernel`;
+- but once `OS kernel` on `A` gets IP packet, where `Y` is a destination point:
+  - if a server in a `host` mode: it will drop the packet, concidering its some mistake;
+  - if a server in a `router` mode: it will try to route the packet to the specified direction;
+- so, to turn `router` mode for the server, `IP forwarding` should be enabled;
+- the `OS kernel` on `A` then routes IP packet to the `Y`;
+
+
+## How VPN actually works: Going _From_ Private Network
+
+We have multiple network interfaces on the sending server `A`:
+- `TUN` interface (virtual one);
+- network interface card (physical one).
+
+Which one is used as the `source IP` for a packet, which is sent via VPN?
+
+> **NOTE**: The `OS kernel` rule:
+> In case of multiple network interfaces, the one that sends packet out of the computer, is designated as `source IP` for the packet.
+
+> **NOTE**: This `OS kernel` rule is ONLY applied to the packets, created on this computer.
+> If this is a router and just transfering a packet from `A` to `B`, no source IP adress is changed for the packet.
+
+
+Thus, it differs on each step of the process: 
+- it's IP for `TUN` interface when initial IP packet is created and send to the `App` on `A` (because it's `bus`);
+- it's IP for `physical network interface card` when updated packet is sent from `A` to `B` (because now it's `train`);
+
+
+
+
+# Firewall
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
