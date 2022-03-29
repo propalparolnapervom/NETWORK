@@ -1188,6 +1188,87 @@ If you need to update `App`, you update the `App`. No need to update `OS kernel`
 
 
 
+## Virtual Networking Technologies: Overall
+
+Unlike the `physical network interface`, which is a piece of hardware, `virtual network interface` is implemented as a piece of software.
+
+Their functionality is similar to `physical network interface`, but they can do many-many more, because they're implemented in software.
+
+The `physical network interface`:
+- its one end (#1) is in `OS kernel`, connected with `Network Stack` (the one, that works with packets on MAC, IP and Transport Layers within a kernel);
+- its other end (#2) is outside of kernel, physically connected to the wire (in case of Ethernet, for example);
+- once `Network Stack` constructs a packet to be sent, its provided to end #1, then a coresponding signal is generated on the end #2 and spread via wire (in case of Ethernet, for example);
+
+The `loopback` is an example of `virtual network interface`:
+- we can consider it as 2 pipes:
+  - outcoming pipe: for the packets moving from `Network Stack` outside `OS kernel`;
+  - incoming pipe: for the opposite direction;
+- one end of both (outcoming/incoming) pipes is in `OS kernel`, connected with `Network Stack` (the one, that works with packets on MAC, IP and Transport Layers within a kernel);
+- other side of both (outcoming/incoming) pipes is connected with other side of incoming pipe: 
+  - whatever goes via outcoming pipe, is automatically redirected to go back to incoming pipe;
+  - this virtual interface has IP `127.0.0.1`;
+  - that's how everything sent to the IP, comes back;
+
+In the similar way there can be implemented some kind of `black hole` `virtual network interface`:
+- whatever packet goes via outcoming pipe, is dropped on its other side;
+
+Or there can be implemented `virtual network interface` that modifies packets:
+- whatever packet goes via outcoming pipe, is modified on its other side;
+- it can be sent back via incoming pipe then, or sent further over the network;
+
+So many implementations of `virtual network interface` could be done, as this is just a software.
+
+
+## Virtual Networking Technologies: TUN/TAP
+
+`TUN/TAP` is a type of `virtual network interface`.
+
+It allows `OS kernel` to give the packet to the `App`:
+- one end of both (outcoming/incoming) pipes is in `OS kernel`, connected with `Network Stack` (the one, that works with packets on MAC, IP and Transport Layers within a kernel);
+- the other end of both (outcoming/incoming) pipes is placed outside of `OS kernel`; but not to the network, but to the `App` instead;
+- whatever packet is sent via outcoming pipe, it is got by `App`;
+- whatever is sent via incoming pipe (by `App`), is got to `Network Stack` as a packet
+
+
+
+Reminder: `Network Stack` within a `OS kernel` consist of:
+- Transport layer
+- IP layer
+- MAC layer
+
+`TUN` interface is connected to `IP layer`.
+`TAP` interface is connected to `MAC layer`.
+
+The `OS kernel` has a routing tables, which describe which packet should be sent to which interface.
+
+So:
+- if a packet (`IP Header`) has to be sent to `App`, then `TUN` interface will be used;
+- if a frame (`MAC Header`) has to be sent to `App`, then `TAP` interface will be used;
+
+
+> **NOTE**: To build VPN, you can use either of `TUN` or `TAP` interface. 
+> But `TAP` interface is used for other applications as well.
+
+> **NOTE**: To be able to use `TUN/TAP` interface, it should have eventually:
+> - a new interface itself;
+> - IP adress, mapped to the new interface;
+> - "UP" state of the new interface.
+> For example, `ifconfig` command should show all of that info.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
