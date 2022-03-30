@@ -1500,6 +1500,85 @@ Each table has its own `chains` (like `INPUT`, `FORWARD`, `OUTPUT`, etc).
 If command doesn't specify the table, `filter` table is in use.
 
 
+# BGP
+
+BGP stands for Border Gateway Protocol. It's what glues network together into something called Internet.
+
+
+
+## Routing: High-Level Overview
+
+> Traffic routing is done by routers, which rely on infromations from its routing tables. But how this information is updated?
+
+Internet consists of many-many Autonomous Systems, which are separate networks for:
+- end users (like campus network withing the university);
+- backbone networks, that are used for transit only (like a national interstate highways);
+- regional networks (like state highways);
+
+When all of this Autonomous Systems are connected, they form an Internet.
+
+To connect 2 of such Autonomous Systems, they have to be connected on both:
+- physical level - but that's not enough, as everybody needs to know the map to make a communication; the map is not static and can change often;
+- software level - that's where BGP comes in, to solve the issue with providing of map to everybody;
+
+
+When a connections is established between any 2 Autonomous Systems, each of this 2 Autonomous Systems has set up a BGP speaker for this specific connection. Something like:
+- Autonomous System #1 (BGP speaker #1-2) <---> Autonomous System #2 (BGP speaker #2-1)
+- Autonomous System #1 (BGP speaker #1-3) <---> Autonomous System #3 (BGP speaker #3-1)
+- Autonomous System #4 (BGP speaker #4-3) <---> Autonomous System #3 (BGP speaker #3-4)
+- Autonomous System #4 (BGP speaker #4-5) <---> Autonomous System #5 (BGP speaker #5-4)
+
+> **NOTE**: In the example above, there's no direct connections between AS #1 and AS # 5, but they are connected via other AS.
+
+Those BGP speaker exchange information between each other.
+
+For example:
+- `Autonomous System #2` has network `128.230.20.0/24`;
+- `BGP speaker #2-1`, which is located within the `Autonomous System #2`, knows that;
+- `BGP speaker #2-1` shares information that it can reach `128.230.20.0/24` network with all `BGP speaker` he has direct connection;
+- in this way, now `BGP speaker #1-2` knows that to reach `128.230.20.0/24` network, `BGP speaker #2-1` has to be used;
+- `BGP speaker #1-2` shares this info with other BGP speakers he connected to;
+- thus, eventually all Autonomous Systems should know via its BGP speakers how to reach `128.230.20.0/24` network;
+
+That's how "map" information is provided.
+
+> **NOTE**: Sharing map information between all Autonomous Systems is the main purpose of BGP protocol.
+
+Beside BGP speakers on the edge, each Autonomous Systems have internal routers for routing traffic inside the Autonomous System.
+
+Once global information (global map of connections between separate Autonomous Systems) is collected and shared between all Autonomous Systems via its BGP speakers, BGP speaker of each Autonomous System can share this information with routers, which are internal within correspoinding Autonomous System.
+
+Unlike BGP speakers, which have to know global map, internal routers within separate Autonomous System doesn't have to.
+All they need to know, is the next step.
+To reach destination `X`, route traffic to some adress.
+To reach destination `Y`, route traffic to other adress.
+
+
+> **NOTE**: So:
+> BGP speakers works with map of whole highways.
+> Internal routers work with signs on that highways (to reach Los Angeles, exit this turn).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
