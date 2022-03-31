@@ -1716,8 +1716,8 @@ Differences:
 `Interior Gateway Protocol (IGP)` defines how to distribute information between internal routers.
 
 Examples of IGP:
-- `RIP` (Routing Information Protocol);
-- `OSPF` (Open Shortest Path First);
+- `RIP` (Routing Information Protocol) - relies on distance vector;
+- `OSPF` (Open Shortest Path First) - relies on link state;
 
 Once BGP speakers gets global information from otside via BGP protocol:
 - the information is fed to the IGP routing protoco (RIP, OSPF, etc);
