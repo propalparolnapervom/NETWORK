@@ -1804,6 +1804,12 @@ whois -h whois.radb.net 31.13.78.3
 ```
 
 
+Which `IP` prefixes contain specified `AS`
+```
+whois -h whois.radb.net -- '-i origin AS32934' | grep route:
+```
+
+
 
 
 
