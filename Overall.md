@@ -1728,13 +1728,35 @@ Once BGP speakers gets global information from otside via BGP protocol:
 
 
 
+## Overlaping IP adress
+
+If few IP prefixes are in the table with routes, BGP choses the more specific one (so, the one with more bits for the network).
+
+## IP Anycast
 
 
+The same IP can be handled by different servers, located in different AS (so, different locations). 
 
+We don't care, which specific server will be reached via this IP, as they all do the same.
 
+Depending on in which point your AS is located, `AS path` for corresponding network could be provided to one from AS with the server (or all of them).
 
+BGP protocol allows to deal with such situation, as even in case of multiple `AS path`, the only one will be chosen. And it will be different, depending what AS your are located in. Thsu, different servers could be reached.
 
+`IP Anycast` - as long as I can reach any computer with this IP, my request is satisfied.
 
+In case of multiple servers for the IP, BGP will select one, the best available one.
+
+> **NOTE**: At the same time, with IP Anycast, BGP doesn't garantee each time it will be physically the same server.
+> So IP Anycast:
+> - good for UDP connections (DNS, for example) - as we just send a packet and get request; 
+>   - in this case we don't care if one packet will be send to one server and next one to another one;
+>   - all of the servers have same info, so we get the same request;
+> - more or less for short-live TCP connections:
+>   - when connection is short live, there's a chance that few packets will arrive to the same server;
+>   - and having one server during the session is critical to have a connection;
+> - bad for long-live TCP connections:
+>   - when packet arrives to one server and then to another, it brakes the TCP connection;
 
 
 
