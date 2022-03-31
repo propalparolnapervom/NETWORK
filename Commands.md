@@ -358,3 +358,50 @@ nc -u 10.0.2.7 9090
 ```
 
 
+## Autonomous Systems, BGP
+
+
+### ripe.net
+
+There some collectors that collect corresponding data.
+
+This website provides visualisation of such data.
+
+Here we can see:
+- [AS Neighbors](https://stat.ripe.net/widget/asn-neighbours)
+- [What Prefix was announced for the AS](https://stat.ripe.net/widget/announced-prefixes)
+- [What AS Path was announced for the specific Network Prefix](https://stat.ripe.net/widget/looking-glass)
+- [Visualize AS path](https://stat.ripe.net/widget/bgplay)
+
+
+
+### Tools
+
+In which `AS` specified `IP` address is located.
+```
+whois -h whois.radb.net 31.13.78.3
+```
+
+Which `IP` prefixes contain specified `AS`
+```
+whois -h whois.radb.net -- '-i origin AS32934' | grep route:
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
