@@ -1732,6 +1732,9 @@ Once BGP speakers gets global information from otside via BGP protocol:
 
 If few IP prefixes are in the table with routes, BGP choses the more specific one (so, the one with more bits for the network).
 
+
+
+
 ## IP Anycast
 
 
@@ -1757,6 +1760,57 @@ In case of multiple servers for the IP, BGP will select one, the best available 
 >   - and having one server during the session is critical to have a connection;
 > - bad for long-live TCP connections:
 >   - when packet arrives to one server and then to another, it brakes the TCP connection;
+
+
+`Content Delivery Networks (CDN)` do something similar to IP Anycast: they deploy your application to several AS around the world. Then your customer choses the nearest to him AS, which is accelerates the speed of communication (comparing to the situation, when only 1 AS has your applicaiton, so customers around the globe has to hop over many AS in order to reach your AS).
+
+
+## BGP: Tools
+
+### ripe.net
+
+There some collectors that collect corresponding data.
+
+This website provides visualisation of such data.
+
+Here we can see:
+- [AS Neighbors](https://stat.ripe.net/widget/asn-neighbours)
+- [What Prefix was announced for the AS](https://stat.ripe.net/widget/announced-prefixes)
+- [What AS Path was announced for the specific Network Prefix](https://stat.ripe.net/widget/looking-glass)
+- [Visualize AS path](https://stat.ripe.net/widget/bgplay)
+
+
+### Telnet to a BGP router
+
+There are some real open BGP speakers/routers, that allow to log in.
+```
+telnet route-views.optus.net.au
+```
+
+Some of such public BGP routers provide web interface, where you can insert a command, that will be executed on the router (so, alternate to telnet way).
+
+Commands on the BGP routers
+```
+# Show BGP tables
+show ip bgp
+
+```
+
+### Commands
+
+Get AS number from IP Address
+```
+whois -h whois.radb.net 31.13.78.3
+```
+
+
+
+
+
+
+
+
+
 
 
 
