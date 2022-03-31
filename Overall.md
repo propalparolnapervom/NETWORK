@@ -1500,6 +1500,8 @@ Each table has its own `chains` (like `INPUT`, `FORWARD`, `OUTPUT`, etc).
 If command doesn't specify the table, `filter` table is in use.
 
 
+
+
 # BGP
 
 BGP stands for Border Gateway Protocol. It's what glues network together into something called Internet.
@@ -1514,6 +1516,8 @@ Internet consists of many-many Autonomous Systems, which are separate networks f
 - end users (like campus network withing the university);
 - backbone networks, that are used for transit only (like a national interstate highways);
 - regional networks (like state highways);
+
+> **NOTE**: Autonomous System is not just a single network. It can be multiple networks, belonging to one single entity.
 
 When all of this Autonomous Systems are connected, they form an Internet.
 
@@ -1557,6 +1561,191 @@ To reach destination `Y`, route traffic to other adress.
 > **NOTE**: So:
 > BGP speakers works with map of whole highways.
 > Internal routers work with signs on that highways (to reach Los Angeles, exit this turn).
+
+
+## Autonomous Systems and Peering
+
+Autonomous System (AS) is not just a single network. It can be multiple networks, belonging to one single entity.
+
+3 types of Autonomous Systems:
+- stub - 1 AS, connected to 1 single AS:
+  - for ex, a company network that connected to 1 single ISP; 
+  - in this case, in order to reach Internet, they have to go to single ISP and vise versa;
+- multihomed - 1 AS, connected to few AS:
+  - for ex, a company network that connected to few ISP; 
+  - in this case, it can reach Internet via different paths (1 connected AS, or another);
+  - it doesn't allow packets to be transited throug itself; 
+  - the packets can be sent or get from one connected AS, as well sent/get from another connected AS - but not from one connected AS to another connected AS;
+- transit - AS, connected to multiple AS, with its main purpose:
+  - get packet from one connected AS;
+  - route the packet via itself;
+  - put the packet to other connected AS eventually.
+
+> **NOTE**: Only `transit AS` provides packet transition. 
+> Even in case of `multihomed AS` (when 2 AS can be connected via common AS), the common AS doesn't provide service of packet transition.
+
+`Transit AS` could be large to cover the globe, all small to cover the state only.
+
+`Peering` is a connection between different AS via BGP speakers:
+  - for ex, we want to make a peering between us, to exchange info between me and you: I can reach this network, what networks can reach you?
+  - I select you as next hop to deliver a packet to that network;
+
+> **NOTE**: BGP connection is done via TCP protocol.
+
+Peering could be:
+- private:
+  - when its some kind of business site, when a smaller guys pays to the larger guys to get "map" information;
+  - usually it happens, when you set up a BGP speaker inside your network and BGP speaker inside a Data Center;
+- public - Internet Exchange Point (IX or IXP):
+  - when large guys exchange information;
+  - a lot of this in ISP, when ISP exchange info between themselves;
+  - some of this point are huge: whole countries and continents are connected via such peerings;
+
+Peering basicly is done via the `switch`.
+
+
+## How BGP works
+
+When peering is established between 2 AS with help of 2 BGP speakers, located within each AS:
+- the connection is called `BGP session`;
+- both BGP speakers send keep alive messages to each other to know that connection is still alive;
+- no keeps alive messages - no connection;
+
+
+### How BGP works: Prefix Advertisement
+
+The most important for BGP speakers is to exchange the information.
+
+The information that is sent by BGP speaker to share knowledge about some network within its AS is called `BGP update`. 
+
+The sending of `BGP update` is called `BGP Prefix Advertisement` (`Network Prefix` here is a network, that is contained within AS and should be advertised via BGP speaker on how to reach it).
+
+For example:
+- `AS1111` is multihomed AS, thus connected to the following AS:
+  - `AS2222`
+  - `AS3333`
+- `AS1111` contains network `128.230.0.0/16`;
+
+`AS1111` makes `BGP Prefix Advertisement` regarding its network: sends `BGP update` to all connected AS, which contains info like `1111 128.230.0.0/16` (specific network is available via specific AS).
+
+Now `AS2222` and `AS3333` know that in order to reach network `128.230.0.0/16` the traffic should be routed to `AS1111`. 
+
+This is called `AS path`. In this example it contains 1 node.
+
+For example, in addition to the previous example:
+- `AS3333` connected to `AS2222`;
+
+`AS3333` shares with `AS2222` `AS path` that now contains 2 nodes: `3333  1111 128.230.0.0/16`.
+
+> **NOTE**: `AS2222` now has 2 `AS path` to reach the network:
+> - via `AS1111`, as it's directly connected;
+> - via  `AS3333` and then via `AS1111`, as an alternative path;
+> Now `AS2222` has to chose one, which will be used further for:
+> - using;
+> - advertising;
+> We will talk about criterias to pick up "best path" further.
+
+For example, in addition to the previous example:
+- `AS2222` is connected to the `AS505050`;
+
+`AS2222` shares with `AS505050` `AS path` that now contains 2 nodes: `2222 1111 128.230.0.0/16`.
+
+In this way, `AS505050` knows that in order to reach `128.230.0.0/16` network, the traffic should reach `AS2222` and then `AS1111`.
+
+
+## How BGP works: Update Message
+
+BGP uses TCP protocol.
+
+BGP listens to port `179` by default.
+
+Message:
+- MAC header
+- IP header
+- TCP header
+- BGP Update Message (1 or many) as a data;
+  - each BGP update message is regarding 1 single Network Preffix
+
+If AS has multiple pathes to reach network, it contains it all.
+
+But it sends (and uses by itself) to it's neighbords only 1 path.
+
+It sends it to all neighbords, excepts ones that are olready included into `AS path` (as obviously, they already know the path).
+
+Once the network is no longer reachable for some reason, AS can send a BGP update with `withdraw` message.
+
+
+## How BGP works: Best Path Selection
+
+AS might now few AS path to specific network. But only 1 must be selected. It will be used for traffic routing and for path advertisement then.
+
+Criterias that are used to pick up the best AS path among few ones:
+- weight:
+  - you can assign a different weight to different path;
+  - usually is done by admins;
+- local preference:
+- shortest AS path:
+  - somethimes 1 of the neighbords should be used as a backup (so to use it only when other neighbords are not available);
+  - we can do that by sending longer AS path in artafficial way, by adding yourself several times: 1111 1111 1111 128.230.0.0/16
+
+
+
+
+## IBGP and IGP
+
+So far we spoke regarding `External BGP (EBGP)` - how to connect different AS via BGP speakers.
+
+But some of AS has multiple BGP speakers, as they are connected with multiple AS. 
+
+### IBGP
+
+`Internal BGP (IBGP)` is used for a communication between multiple BGP speakers within single AS (if any).
+
+Such BGP speakers within a singe AS are connected in a full mesh between each other (so, each one with each one). 
+
+The difference in BGP update message for EBGP and IBGP is that number of current AS is not added to the start of AS path for internal communication via IBGP. It's only done for external communication. 
+
+### IGP
+
+There are a lot of internal routers within each AS, beside the BGP speakers.
+
+Differences:
+- `BGP speakers` should know the global information (the map for the road).
+- `Internal routers` need to know the direction only (the sign on the road, like "Exit to Los Angeles").
+
+`Interior Gateway Protocol (IGP)` defines how to distribute information between internal routers.
+
+Examples of IGP:
+- `RIP` (Routing Information Protocol);
+- `OSPF` (Open Shortest Path First);
+
+Once BGP speakers gets global information from otside via BGP protocol:
+- the information is fed to the IGP routing protoco (RIP, OSPF, etc);
+- the IGP routing protocol (RIP, OSPF, etc) then helps internal routers to set up directions (road signs) for them;
+
+> **NOTE**: Different AS can use they own IGP. There's no standard.
+> But outside of the AS everybody has to follow the standard (BGP).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
