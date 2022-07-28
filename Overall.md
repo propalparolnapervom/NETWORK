@@ -764,7 +764,7 @@ So, messages from different clients on the same server will not be placed into t
 
 
 
-# Layer 4: Application
+# Layer 7: Application
 
 
 ## DNS
