@@ -45,7 +45,9 @@ Then `OS kernel` sends the package.
 ## How App receives data
 
 > NOTE: When you open the `Socket` at `OS` level, you must bind it to:
+> 
 >          - `IP` adress - as server can have multiple `network interface cards`, so multiple `IP` adresses. and `App` can listen all of them or just specified ones; you define it via such bind;
+>          
 >          - `Port` number - thus `OS` knows to which `App` give received package;
 
 
