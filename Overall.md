@@ -121,7 +121,7 @@ Its done at the same exact way as it was done by `A`, but with new source/destin
 
    3) MAC header:
    - source MAC address (`R1` router);
-   - destination MAC address (`R1` router);
+   - destination MAC address (`R2` router);
    - type of payload (`IP packet` or `ARP packet`).
 
 Such removing old `MAC Header`, looking at `IP` adresses, adding new `MAC Header`  will be done multiple times by multiple routers within an Internet.
@@ -132,7 +132,7 @@ Eventually, `Rk` router will be reached, which is located within the same local 
 
    3) MAC header:
    - source MAC address (`Rk` router);
-   - destination MAC address (`R1` router);
+   - destination MAC address (`B`);
    - type of payload (`IP packet` or `ARP packet`).
 
 This `Frame` arrives to the destination `B`. 
